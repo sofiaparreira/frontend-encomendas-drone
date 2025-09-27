@@ -8,6 +8,9 @@ import DashboardOrdersPage from './pages/order/page';
 import Sidebar from './components/Sidebar'; // ajuste o caminho conforme sua estrutura
 import SettingsPage from './pages/settings/page';
 import DroneDetailPage from './pages/drone/details/page';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
+
 
 // Componente wrapper que contém a sidebar e o conteúdo
 const AppContent = () => {
@@ -75,6 +78,18 @@ const AppContent = () => {
           <Route path="/" element={<div className="p-8"><h1 className="text-2xl font-bold">Dashboard Principal</h1></div>} />
         </Routes>
       </div>
+
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        newestOnTop={false} 
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

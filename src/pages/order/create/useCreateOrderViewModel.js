@@ -3,6 +3,7 @@ import { getAddressFromCEP } from "../../../utils/getAddressFromCEP";
 import { getCoordinatesFromAddress } from "../../../utils/getCoordinatesFromAddress";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 
 
@@ -22,8 +23,8 @@ export default function useCreateOrderViewModel() {
     },
     pesoKg: "",
     droneId: "",
-    prioridade: "",
-    prioridade: 0
+    prioridadeId: 0,
+
   });
 
   const navigate = useNavigate();
@@ -76,7 +77,16 @@ export default function useCreateOrderViewModel() {
       console.log('Resposta do servidor: ', response.data)
       navigate("/order")
     } catch (error) {
-      console.error('Erro ao solicitar pedido: ', error)
+  
+        if (error.response && error.response.data) {
+    // Aqui pegamos o erro que veio no body do backend
+    console.error('Erro do backend:', error.response.data.error);
+    toast.error(error.response.data.error); // mostra no toast
+  } else {
+    // Se for erro de rede ou outro problema
+    console.error('Erro inesperado:', error.message);
+    toast.error('Erro inesperado, tente novamente.');
+  }
 
     }
   }

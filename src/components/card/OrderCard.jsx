@@ -10,7 +10,8 @@ const OrderCard = ({
   dataCriacao,
   dataEntrega,
   observacoes,
-  prioridade
+  prioridade,
+  onCancel
 }) => {
   // Função para determinar a cor do status
   const getStatusColor = (status) => {
@@ -93,6 +94,10 @@ const OrderCard = ({
           </div>
         </div>
 
+
+<span className=''>
+  {prioridade}
+</span>
         <div className="flex items-start gap-2 text-gray-600">
           <LocationIcon />
           <div className="flex-1">
@@ -151,7 +156,7 @@ const OrderCard = ({
           <ButtonDefault text='Ver detalhes' />
         </div>
         {status === 'pendente' && (
-          <button className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors duration-200 font-medium text-sm">
+          <button onClick={onCancel} className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors duration-200 font-medium text-sm">
             Cancelar
           </button>
         )}

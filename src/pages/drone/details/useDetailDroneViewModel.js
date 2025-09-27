@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function useDetailDroneViewModel() {
 
@@ -35,6 +36,7 @@ export default function useDetailDroneViewModel() {
 
     const { id } = useParams();
 
+    console.log("id", id)
 
     const getDroneById = async () => {
         if (!id) {
@@ -53,26 +55,21 @@ export default function useDetailDroneViewModel() {
 
 
 
-    // ---------- ATUALIZAR STATUS DO DRONE ----------
-    const updateStatus = async () => {
-        if (!id) {
-            console.log("Drone não encontrado");
-            return;
-        }
-        const status = "entregando";
+    // ---------- INICIA VOO DO DRONE ----------
+    const startFlight = async () => {
         try {
-            const response = await axios.patch(
-                `${import.meta.env.VITE_URL_BASE}/drone/status/${id}`,
-                { status }
-            );
+            const response = await axios.post(`${import.meta.env.VITE_URL_BASE}/drone/start-voo/${id}`)
+            const data = response.data
+            console.log("voo iniciado", data)
 
-            const data = response.data;
-            console.log("update status", data);
-            getDroneById();
+            getDroneById()
         } catch (error) {
-            console.error("Erro ao atualizar status do drone: ", error);
+                        console.error('Erro ao iniciar drone: ', error);
+
         }
-    };
+    }
+
+    // ---------- ATUALIZAR STATUS DO DRONE ----------
 
 
     // ---------- GET PEDIDO DO DRONE ----------
@@ -101,5 +98,5 @@ export default function useDetailDroneViewModel() {
 
 
 
-    return { drone, updateStatus, order }
+    return { drone, startFlight, order }
 }

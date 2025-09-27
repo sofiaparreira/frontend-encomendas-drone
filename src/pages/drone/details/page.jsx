@@ -7,7 +7,7 @@ import { FaLocationDot } from 'react-icons/fa6';
 import GridMap from '../../../components/GridMap'
 
 const DroneDetailPage = () => {
-  const { drone, updateStatus, order } = useDetailDroneViewModel();
+  const { drone, startFlight, order } = useDetailDroneViewModel();
   const [isStartingFlight, setIsStartingFlight] = useState(false);
 
 
@@ -64,7 +64,7 @@ const DroneDetailPage = () => {
                 </p>
               </div>
               <button
-                onClick={updateStatus}
+                onClick={startFlight}
                 disabled={isStartingFlight}
                 className={`inline-flex items-center px-4 py-2 rounded-lg text-white font-medium transition-all duration-200 ${
                   isStartingFlight 

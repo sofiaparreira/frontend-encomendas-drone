@@ -51,44 +51,22 @@ const CreateOrderPage = () => {
               onChange={(e) => setOrder(prev => ({ ...prev, pesoKg: e.target.value }))}
             />
 
-            <div>
-              <label className="text-sm font-medium text-gray-700 px-0">
-                Selecione um drone para utilizar nesta entrega
-              </label>
-              <Dropdown
-                options={droneOptions}
-                onSelect={(droneId) => {
-                  setOrder(prevOrder => ({
-                    ...prevOrder,
-                    droneId: droneId
-                  }));
-                }}
-                value={order.droneId}
-                placeholder="Selecione uma opção"
-              />
-            </div>
+            <Dropdown
+              options={priorities.map(p => ({
+                label: p.nome,
+                value: p._id
+              }))}
 
-            <div>
-              <label className="text-sm font-medium text-gray-700 px-0">
-                Prioridade da entrega
-              </label>
-              <Dropdown
-                options={priorities.map(p => ({
-                  label: p.nome,  
-                  value: p.valor  
-                }))}
-                onSelect={(selectedValue) => {
-                  setOrder(prevOrder => ({
-                    ...prevOrder,
-                    prioridade: selectedValue
-                  }));
-                }}
-                value={order.prioridade}
-                placeholder="Selecione uma prioridade"
-              />
+              onSelect={(selectedValue) => {
+                setOrder(prevOrder => ({
+                  ...prevOrder,
+                  prioridadeId: selectedValue
+                }));
+              }}
+              value={order.prioridadeId}
+              placeholder="Selecione uma prioridade"
+            />
 
-
-            </div>
 
 
           </fieldset>
@@ -185,9 +163,6 @@ const CreateOrderPage = () => {
             </div>
 
           </fieldset>
-
-
-
           <ButtonDefault text={'Cadastrar Pedido'} variant='primary' type='submit' />
         </form>
       </div>

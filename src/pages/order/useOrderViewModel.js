@@ -6,7 +6,7 @@ export default function useOrderViewModel() {
 
     const [orders, setOrders] = useState([]);
     const [activeFilter, setActiveFilter] = useState('pendentes');
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
 
     const getPendingOrders = async () => {
@@ -57,5 +57,27 @@ export default function useOrderViewModel() {
     }, [activeFilter])
 
 
-    return { orders, activeFilter, setActiveFilter, navigate  }
+    // ---------- DELETE PEDIDO ----------
+    const deleteOrder = async (id) => {
+        try {
+            const response = await axios.delete(`${import.meta.env.VITE_URL_BASE}/pedido/${id}`)
+            console.log(response.data)
+            getPendingOrders();
+        } catch (error) {
+            console.error("Erro ao excluir pedido", error)
+
+        }
+    }
+
+
+    // delete modal
+    const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false)
+        const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+const toggleDeleteModal = (orderId = null) => {
+  setSelectedOrderId(orderId);
+  setIsOpenDeleteModal((prev) => !prev);
+};
+
+    return { orders, activeFilter, setActiveFilter, navigate, deleteOrder, toggleDeleteModal, isOpenDeleteModal, selectedOrderId }
 }
