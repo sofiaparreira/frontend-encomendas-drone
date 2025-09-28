@@ -50,7 +50,7 @@ const CreateDronePage = () => {
               }}
               value={drone.nome}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-3 ">
+            <div className="grid grid-cols-3 gap-x-3 ">
               <InputContainer
                 label={'Capacidade máxima (kg)'}
                 onChange={(e) => {
@@ -70,6 +70,16 @@ const CreateDronePage = () => {
                   }))
                 }}
                 value={drone.velocidadeKMH}
+              />
+              <InputContainer
+                label={'Alcance máximo (KM)'}
+                onChange={(e) => {
+                  setDrone((prev) => ({
+                    ...prev,
+                    alcanceMaxKm: e.target.value
+                  }))
+                }}
+                value={drone.alcanceMaxKm}
               />
             </div>
             <div className="">

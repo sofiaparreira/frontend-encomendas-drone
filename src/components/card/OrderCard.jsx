@@ -120,9 +120,9 @@ const OrderCard = ({
     
 
         <div>
-          <p className="text-xs text-gray-500">Drone ID</p>
+          <p className="text-xs text-gray-500">Prioridade</p>
           <p className="font-semibold text-gray-900 text-sm">
-            {droneId ? `${droneId.slice(-6)}` : 'Não atribuído'}
+            {prioridade ?? 'Sem prioridade'}
           </p>
         </div>
 
@@ -151,10 +151,10 @@ const OrderCard = ({
       )}
 
       {/* Botões de ação */}
-      <div className="mt-6 flex gap-2">
-        <div className="flex-1">
+      <div className="mt-6 flex justify-end gap-2">
+        {/* <div className="flex-1">
           <ButtonDefault text='Ver detalhes' />
-        </div>
+        </div> */}
         {status === 'pendente' && (
           <button onClick={onCancel} className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors duration-200 font-medium text-sm">
             Cancelar

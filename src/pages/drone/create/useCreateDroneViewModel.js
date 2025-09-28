@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react"
 import { getAddressFromCEP } from "../../../utils/getAddressFromCEP";
 import { getCoordinatesFromAddress } from "../../../utils/getCoordinatesFromAddress";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 
 export default function useCreateDroneViewModel() {
@@ -78,9 +79,9 @@ export default function useCreateDroneViewModel() {
     }
   };
 
-   // ---------- CADASTRAR DRONE ----------
+  // ---------- CADASTRAR DRONE ----------
   const createDrone = async () => {
-    if (isCreating) return; 
+    if (isCreating) return;
     setIsCreating(true);
 
     try {
@@ -118,13 +119,21 @@ export default function useCreateDroneViewModel() {
 
       navigate("/drone");
     } catch (error) {
-      console.error('Erro ao criar drone: ', error);
-      
-    } finally {
+      if (error.response && error.response.data && error.response.data.errors) {
+        error.response.data.errors.forEach((err) => {
+          const message = Object.values(err)[0];
+          toast.error(message);
+        });
+      } else {
+        console.error("Erro inesperado:", error);
+        toast.error("Ocorreu um erro inesperado");
+      }
+    }
+    finally {
       setIsCreating(false);
       setLoading(false)
     }
   };
 
-  return { createDrone, setDrone, drone, endereco, setEndereco, handleCEP, updateCoordinates, isGettingCoords, isCreating , loading};
+  return { createDrone, setDrone, drone, endereco, setEndereco, handleCEP, updateCoordinates, isGettingCoords, isCreating, loading };
 }

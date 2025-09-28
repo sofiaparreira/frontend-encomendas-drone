@@ -73,15 +73,15 @@ export default function useCreateOrderViewModel() {
       navigate("/order")
 
     } catch (error) {
-
-      if (error.response && error.response.data) {
-        console.error('Erro do backend:', error.response.data.error);
-        toast.error(error.response.data.error);
+      if (error.response && error.response.data && error.response.data.errors) {
+        error.response.data.errors.forEach((err) => {
+          const message = Object.values(err)[0];
+          toast.error(message);
+        });
       } else {
-        console.error('Erro inesperado:', error.message);
-        toast.error('Erro inesperado, tente novamente.');
+        console.error("Erro inesperado:", error);
+        toast.error("Ocorreu um erro inesperado");
       }
-
     } finally {
       setLoading(false)
     }

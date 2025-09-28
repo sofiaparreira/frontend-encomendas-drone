@@ -183,7 +183,7 @@ const DashboardOrdersPage = () => {
                     </div>
                     <div className="text-left">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-900 text-lg">
+                        <h3 className="font-semibold text-gray-900 text-lg ">
                           {key === 'sem-drone' ? 'Pedidos sem Drone' : `Drone ${droneId?.nome || key}`}
                         </h3>
                         {droneId?._id && (
@@ -193,15 +193,13 @@ const DashboardOrdersPage = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-1">
-                        <p className="text-sm text-gray-500">
-                          {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'} na fila
-                        </p>
+                        
                         {droneId && (
                           <>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                               droneId.status === 'disponivel' ? 'text-green-600 bg-green-100' :
                               droneId.status === 'em_voo' ? 'text-blue-600 bg-blue-100' :
-                              droneId.status === 'reservado' ? 'text-yellow-600 bg-yellow-100' :
+                              droneId.status === 'reservado' ? 'text-gray-600 bg-gray-100' :
                               droneId.status === 'manutencao' ? 'text-red-600 bg-red-100' :
                               'text-gray-600 bg-gray-100'
                             }`}>
@@ -251,7 +249,7 @@ const DashboardOrdersPage = () => {
                             <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
                               droneId.status === 'disponivel' ? 'text-green-600 bg-green-100' :
                               droneId.status === 'em_voo' ? 'text-blue-600 bg-blue-100' :
-                              droneId.status === 'reservado' ? 'text-yellow-600 bg-yellow-100' :
+                              droneId.status === 'reservado' ? 'text-gray-600 bg-gray-100' :
                               droneId.status === 'manutencao' ? 'text-red-600 bg-red-100' :
                               'text-gray-600 bg-gray-100'
                             }`}>

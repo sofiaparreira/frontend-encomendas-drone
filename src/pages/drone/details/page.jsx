@@ -8,7 +8,7 @@ import GridMap from '../../../components/GridMap'
 import Loading from '../../../components/Loading'
 
 const DroneDetailPage = () => {
-  const { drone, startFlight, order } = useDetailDroneViewModel();
+  const { drone, startFlight, order, loading } = useDetailDroneViewModel();
   const [isStartingFlight, setIsStartingFlight] = useState(false);
 
 
