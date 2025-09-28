@@ -8,23 +8,23 @@ import GridMap from '../../../components/GridMap'
 import Loading from '../../../components/Loading'
 
 const DroneDetailPage = () => {
-  const { drone, startFlight, order, loading, rechargeBaterry } = useDetailDroneViewModel();
+  const { drone, startFlight, order, loading, rechargeBaterry, fila } = useDetailDroneViewModel();
   const [isStartingFlight, setIsStartingFlight] = useState(false);
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'disponivel':
-        return 'text-green-600 bg-green-100';
+        return 'text-green-600 bg-green-100 border border-green-200';
       case 'reservado':
-        return 'text-gray-600 bg-gray-100';
+        return 'text-gray-600 bg-gray-100 border border-gray-200';
       case 'entregando':
-        return 'text-blue-600 bg-blue-100';
+        return 'text-blue-600 bg-blue-100 border border-blue-200';
       case 'retornando':
-        return 'text-blue-600 bg-blue-100';
+        return 'text-blue-600 bg-blue-100 border border-blue-200';
       case 'recarregando':
-        return 'text-red-600 bg-red-100';
+        return 'text-red-600 bg-red-100 border border-red-200';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-gray-600 bg-gray-100 border border-gray-200';
     }
   };
 
@@ -41,21 +41,39 @@ const DroneDetailPage = () => {
 
   const isBatteryLow = drone.porcentagemBateria <= 30;
 
+  // Debug: Log dos dados da fila
+  console.log("🔍 Debug - Fila:", fila);
+  console.log("🔍 Debug - Destinos:", fila?.entregas?.[0]?.pedidos?.map(pedido => ({
+    lat: pedido.enderecoDestino.coordX,
+    long: pedido.enderecoDestino.coordY
+  })) || []);
+
   return (
-    <main className="min-h-screen bg-gray-50 py-8 px-8">
-      <div className="">
+    <main className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-gray-900">{drone.nome}</h1>
+            <span className="flex gap-3 items-center">
+              <h1 className="text-3xl font-bold text-gray-900">{drone.nome}</h1>
+                        <p className="text-sm rounded-full bg-gray-700 text-white px-2 py-1">{drone._id}</p>
+            </span>
+
             <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(drone.status)}`}>
               {drone.status.replace('_', ' ').toUpperCase()}
             </span>
           </div>
-          <p className="text-gray-600 text-sm">ID: {drone._id}</p>
+          <div className='flex gap-2 items-center text-sm mt-4'>
+              <span className="text-gray-600 text-sm">Criado em:</span>
+              <p className="font-medium text-gray-900">{formatDate(drone.createdAt)}</p>
+            </div>
+            <div className='flex gap-2 items-center text-sm'>
+              <span className="text-gray-600 text-sm">Última atualização:</span>
+              <p className="font-medium text-gray-900">{formatDate(drone.updatedAt)}</p>
+            </div>
         </div>
 
-        {/* Status de Alerta Bateria - Movido para cima */}
+        {/* Status de Alerta Bateria */}
         {isBatteryLow && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <div className="flex items-center">
@@ -72,7 +90,6 @@ const DroneDetailPage = () => {
           </div>
         )}
 
-        {/* Botão de Ação - Logo abaixo do header se reservado */}
         {drone.status === 'reservado' && (
           <div className="bg-white rounded-lg shadow-md p-4 mb-6 border-l-4 border-yellow-400">
             <div className="flex items-center justify-between">
@@ -103,10 +120,10 @@ const DroneDetailPage = () => {
         )}
 
         {/* Informações Principais */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-7 gap-4 mb-6">
           {/* Bateria */}
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <div className="flex items-center justify-between mb-3">
+          <div className="bg-white rounded-lg shadow-md p-4 col-span-2">
+            <div className="flex items-center justify-between mb-3 ">
               <div className="flex items-center">
                 <BsBattery className={`h-5 w-5 mr-2 ${getBatteryColor(drone.porcentagemBateria)}`} />
                 <h3 className="text-sm font-semibold text-gray-900">Bateria</h3>
@@ -141,7 +158,6 @@ const DroneDetailPage = () => {
           {/* Capacidade */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <div className="flex items-center mb-2">
-              {/* <Package className="h-5 w-5 mr-2 text-blue-600" /> */}
               <h3 className="text-sm font-semibold text-gray-900">Capacidade</h3>
             </div>
             <div className="text-center">
@@ -152,7 +168,6 @@ const DroneDetailPage = () => {
           {/* Velocidade */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <div className="flex items-center mb-2">
-              {/* <Zap className="h-5 w-5 mr-2 text-purple-600" /> */}
               <h3 className="text-sm font-semibold text-gray-900">Velocidade</h3>
             </div>
             <div className="text-center">
@@ -174,7 +189,6 @@ const DroneDetailPage = () => {
           {/* Alcance */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <div className="flex items-center mb-2">
-              {/* <Navigation className="h-5 w-5 mr-2 text-orange-600" /> */}
               <h3 className="text-sm font-semibold text-gray-900">Alcance</h3>
             </div>
             <div className="text-center">
@@ -201,24 +215,6 @@ const DroneDetailPage = () => {
           </div>
         </div>
 
-        {/* Informações de Sistema */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-            <MdWarning className="h-5 w-5 mr-2 text-gray-600" />
-            Informações do Sistema
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <span className="text-gray-600 text-sm">Criado em:</span>
-              <p className="font-medium text-gray-900">{formatDate(drone.createdAt)}</p>
-            </div>
-            <div>
-              <span className="text-gray-600 text-sm">Última atualização:</span>
-              <p className="font-medium text-gray-900">{formatDate(drone.updatedAt)}</p>
-            </div>
-          </div>
-        </div>
-
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
             <MdMyLocation className="h-6 w-6 mr-3 text-blue-600" />
@@ -229,18 +225,39 @@ const DroneDetailPage = () => {
             <p className="text-sm text-blue-800">
               <strong>Rastreamento em Tempo Real:</strong> Ao iniciar voo você poderá acompanhar o drone voando em tempo real no mapa abaixo!
             </p>
+            {fila?.entregas?.[0]?.pedidos && (
+              <p className="text-sm text-blue-700 mt-2">
+                <strong>Entregas programadas:</strong> {fila.entregas[0].pedidos.length} pedido(s) para entrega
+              </p>
+            )}
+            {fila?.entregas?.[0]?.pedidos && fila.entregas[0].pedidos.length > 0 && (
+              <div className="mt-2 text-xs text-gray-600">
+                <strong>Destinos:</strong>
+                <ul className="mt-1 ml-4">
+                  {fila.entregas[0].pedidos.map((pedido, index) => (
+                    <li key={index} className="list-disc">
+                      {pedido.enderecoDestino.rua}, {pedido.enderecoDestino.numero} - {pedido.enderecoDestino.bairro}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
-          <GridMap
-            gridSize={20}
-            droneLatLong={{ lat: drone.coordX, long: drone.coordY }}
-            destinationLatLong={{ lat: order.enderecoDestino.coordX, long: order.enderecoDestino.coordY }}
-            enderecoDestino={order.enderecoDestino}
-            baseLatLong={{ lat: drone.homeCoordX, long: drone.homeCoordY }}
-            showCoordinates={false}
-            mapWidth={500}
-            mapHeight={500}
-          />
+          <div className="w-full flex justify-center">
+            <GridMap
+              gridSize={30}
+              droneLatLong={{ lat: drone.coordX, long: drone.coordY }}
+              destinations={fila?.entregas?.[0]?.pedidos?.map(pedido => ({
+                lat: pedido.enderecoDestino.coordX,
+                long: pedido.enderecoDestino.coordY
+              })) || []}
+              baseLatLong={{ lat: drone.homeCoordX, long: drone.homeCoordY }}
+              showCoordinates={false}
+              mapWidth={800}
+              mapHeight={600}
+            />
+          </div>
         </div>
       </div>
 

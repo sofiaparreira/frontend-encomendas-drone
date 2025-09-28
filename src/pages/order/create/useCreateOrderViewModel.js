@@ -99,10 +99,7 @@ const createOrder = async () => {
     setLoading(true);
 
     const coords = await updateCoordinates();
-    if (!coords) {
-      // Se coords for null, não segue com o envio
-      return;
-    }
+    if (!coords) return;
 
     const lat = Number(coords.lat);
     const lon = Number(coords.lon);
@@ -114,7 +111,7 @@ const createOrder = async () => {
 
     const payload = {
       ...order,
-     enderecoDestino: {
+      enderecoDestino: {
         ...order.enderecoDestino,
         coordX: lat,
         coordY: lon
@@ -125,20 +122,29 @@ const createOrder = async () => {
     console.log('Resposta do servidor: ', response.data);
 
     navigate("/order");
+
   } catch (error) {
+    // Se o backend enviar array de errors
     if (error.response?.data?.errors) {
       error.response.data.errors.forEach((err) => {
         const message = Object.values(err)[0];
         toast.error(message);
       });
+
+    // Se o backend enviar apenas "error" (como no caso do drone)
+    } else if (error.response?.data?.error) {
+      toast.error(error.response.data.error);
+
     } else {
       console.error("Erro inesperado:", error);
       toast.error("Ocorreu um erro inesperado");
     }
+
   } finally {
     setLoading(false);
   }
 };
+
   // --- get drones para popular dropdown
   const [drones, setDrones] = useState([]);
 

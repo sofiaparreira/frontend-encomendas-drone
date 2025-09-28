@@ -18,17 +18,30 @@ const AppContent = () => {
   const navigate = useNavigate();
   const [activeRoute, setActiveRoute] = useState('dashboard');
 
-  const routeMapping = {
-    '/drone': 'drones',
-    '/drone/create': 'drones',
-    '/order': 'pedidos',
-    '/order/create': 'pedidos',
-    '/dashboard': 'dashboard',
-    '/settings': 'configuracoes'
+  // Função para determinar a rota ativa baseada no pathname
+  const getActiveRoute = (pathname) => {
+    // Para rotas que começam com /drone (incluindo /drone/123, /drone/create, etc.)
+    if (pathname.startsWith('/drone')) {
+      return 'drones';
+    }
+    // Para rotas que começam com /order
+    if (pathname.startsWith('/order')) {
+      return 'pedidos';
+    }
+    // Para outras rotas específicas
+    if (pathname === '/settings') {
+      return 'configuracoes';
+    }
+    if (pathname === '/dashboard' || pathname === '/') {
+      return 'dashboard';
+    }
+    
+    // Fallback para dashboard
+    return 'dashboard';
   };
 
   useEffect(() => {
-    const currentRoute = routeMapping[location.pathname] || 'dashboard';
+    const currentRoute = getActiveRoute(location.pathname);
     setActiveRoute(currentRoute);
   }, [location.pathname]);
 
@@ -68,12 +81,10 @@ const AppContent = () => {
           <Route path="/drone/create" element={<CreateDronePage />} />
           <Route path="/drone/:id" element={<DroneDetailPage />} />
 
-
           <Route path="/order/create" element={<CreateOrderPage />} />
           <Route path="/order" element={<DashboardOrdersPage />} />
 
           <Route path="/settings" element={<SettingsPage />} />
-
 
           <Route path="/" element={<div className="p-8"><h1 className="text-2xl font-bold">Dashboard Principal</h1></div>} />
         </Routes>

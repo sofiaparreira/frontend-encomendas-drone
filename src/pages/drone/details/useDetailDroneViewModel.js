@@ -36,6 +36,46 @@ export default function useDetailDroneViewModel() {
         prioridade: 0
     });
 
+    // const [fila, setFila] = useState(
+    //     {
+       
+    //       droneId: "",
+    //       entregas: [
+    //         {
+    //           drone: "",
+    //           pedidos: [
+    //             {
+    //               enderecoDestino: {
+    //                 rua: "",
+    //                 numero: "",
+    //                 bairro: "",
+    //                 cidade: "",
+    //                 estado: "",
+    //                 cep: "",
+    //                 coordX: 0,
+    //                 coordY: 0
+    //               },
+    //               pesoKg: "",
+    //               status: "",
+    //               prioridadeId: { _id: "", nome: "media", valor: 2 },
+    //               droneId: "",
+   
+    //             }
+                
+    //           ],
+    //           totalPeso: 0,
+    //           capacidadeRestante: 0,
+    //           droneMaxPayloadSnapshot: 0,
+    //           status: "agendada",
+          
+    //         }
+    //       ],
+    //       status: "aguardando",
+        
+    //     }
+    //   );
+    const [fila, setFila] = useState(null);
+
     const { id } = useParams();
     const [loading, setLoading] = useState(false);
 
@@ -59,7 +99,27 @@ export default function useDetailDroneViewModel() {
         }
     }
 
+    // ------ GET FILA POR ID DRONE ----------
 
+    useEffect(() => {
+        const getFilaByIdDrone = async () => {
+          setLoading(true);
+    
+          try {
+            const response = await axios.get(`${import.meta.env.VITE_URL_BASE}/fila/${id}`);
+            setFila(response.data); // salva a fila no state
+            console.log("fila", response.data)
+          } catch (err) {
+            console.error(err);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        if (id) {
+            getFilaByIdDrone();
+        }
+      }, [id]);
 
     // ---------- INICIA VOO DO DRONE ----------
     const startFlight = async () => {
@@ -119,13 +179,39 @@ const rechargeBaterry = () => {
     // --- MOSTRA A SIMULAÇÃO DE VOO EM TEMPO REAL ---
    useEffect(() => {
     const ws = new WebSocket("ws://localhost:8080");
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        setDrone(data);
+    
+    ws.onopen = () => {
+        console.log("🔌 WebSocket conectado para drone", id);
     };
-    ws.onclose = () => console.log("Conexão WebSocket fechada");
-    return () => ws.close();
-}, []);
+    
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            console.log("📡 WebSocket recebeu dados do drone:", data);
+            
+            // Só atualiza se for o drone correto
+            if (data._id === id) {
+                setDrone(data);
+                console.log("🚁 Drone atualizado via WebSocket:", data.nome, "Status:", data.status);
+            }
+        } catch (error) {
+            console.error("❌ Erro ao processar dados WebSocket:", error);
+        }
+    };
+    
+    ws.onclose = () => {
+        console.log("🔌 Conexão WebSocket fechada");
+    };
+    
+    ws.onerror = (error) => {
+        console.error("❌ Erro WebSocket:", error);
+    };
+    
+    return () => {
+        console.log("🔌 Fechando WebSocket");
+        ws.close();
+    };
+}, [id]);
 
 
     useEffect(() => {
@@ -135,5 +221,5 @@ const rechargeBaterry = () => {
 
 
 
-    return { drone, startFlight, order, loading, rechargeBaterry }
+    return { drone, startFlight, order, loading, rechargeBaterry, fila }
 }

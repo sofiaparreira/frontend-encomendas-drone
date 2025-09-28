@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import useOrderViewModel from './useOrderViewModel'
 import OrderCard from '../../components/card/OrderCard';
-import { FaClock, FaTruck, FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import { FaClock, FaTruck, FaChevronDown, FaChevronRight, FaEye } from 'react-icons/fa';
 import { FaCircleCheck } from 'react-icons/fa6';
 import { MdFlightTakeoff } from 'react-icons/md';
 import ButtonDefault from '../../components/button/ButtonDefault';
@@ -134,15 +134,15 @@ const DashboardOrdersPage = () => {
             return (
               <div key={key} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 {/* Header da seção do drone */}
-                <button
-                  onClick={() => toggleDroneSection(key)}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 ${droneColor} rounded-lg flex items-center justify-center`}>
+                <div className="px-6 py-4 flex items-center justify-between">
+                  <button
+                    onClick={() => toggleDroneSection(key)}
+                    className="flex items-center gap-4 hover:bg-gray-50 transition-colors flex-1 py-2 px-2 rounded-lg -mx-2"
+                  >
+                    <div className={`w-10 h-10 ${droneColor} rounded-lg flex items-center justify-center flex-shrink-0`}>
                       <MdFlightTakeoff className="w-5 h-5 text-white" />
                     </div>
-                    <div className="text-left">
+                    <div className="text-left flex-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-gray-900 text-lg ">
                           {key === 'sem-drone' ? 'Pedidos sem Drone' : `Drone ${droneId?.nome || key}`}
@@ -173,17 +173,32 @@ const DashboardOrdersPage = () => {
                         )}
                       </div>
                     </div>
-                  </div>
+                  </button>
                   
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    {/* Botão Acompanhar Drone - só aparece se tiver droneId */}
+                    {droneId?._id && (
+                      <button
+                        onClick={() => navigate(`/drone/${droneId._id}`)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Acompanhar Drone"
+                      >
+                        <FaEye className="w-4 h-4" />
+                        <span className="hidden sm:inline">Acompanhar</span>
+                      </button>
+                    )}
+                    
                     <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
                       {orders.length}
                     </span>
-                    <div className="text-gray-400">
+                    <button
+                      onClick={() => toggleDroneSection(key)}
+                      className="text-gray-400 hover:text-gray-600 p-1"
+                    >
                       {isExpanded ? <FaChevronDown /> : <FaChevronRight />}
-                    </div>
+                    </button>
                   </div>
-                </button>
+                </div>
                 
                 {/* Lista de pedidos (colapsável) */}
                 {isExpanded && (
@@ -191,7 +206,16 @@ const DashboardOrdersPage = () => {
                     {/* Informações detalhadas do drone */}
                     {droneId && (
                       <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                        <h4 className="font-medium text-gray-900 mb-2">Informações do Drone</h4>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-gray-900">Informações do Drone</h4>
+                          <button
+                            onClick={() => navigate(`/drone/${droneId._id}`)}
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-lg transition-colors"
+                          >
+                            <FaEye className="w-4 h-4" />
+                            Acompanhar Drone
+                          </button>
+                        </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                           <div>
                             <span className="text-gray-500">Capacidade:</span>
