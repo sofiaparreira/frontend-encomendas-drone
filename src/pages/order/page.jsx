@@ -7,16 +7,17 @@ import { MdFlightTakeoff } from 'react-icons/md';
 import ButtonDefault from '../../components/button/ButtonDefault';
 import DeleteModal from '../../components/modal/DeleteModal';
 import { IoBatteryFull, IoBatteryHalf } from 'react-icons/io5';
+import { TiBatteryLow } from 'react-icons/ti';
+import Loading from '../../components/Loading';
+
 
 const DashboardOrdersPage = () => {
   const {
-    orders, activeFilter, setActiveFilter, navigate, isOpenDeleteModal, toggleDeleteModal, deleteOrder, selectedOrderId
+    orders, activeFilter, setActiveFilter, navigate, isOpenDeleteModal, toggleDeleteModal, deleteOrder, selectedOrderId, loading
   } = useOrderViewModel();
 
-  // Estado para controlar quais seções estão expandidas
   const [expandedDrones, setExpandedDrones] = useState(new Set());
 
-  // Agrupar pedidos por droneId
   const groupedOrders = useMemo(() => {
     if (!orders || orders.length === 0) return [];
     
@@ -32,7 +33,6 @@ const DashboardOrdersPage = () => {
       return acc;
     }, {});
 
-    // Retornar como array para poder usar map
     return Object.entries(groups).map(([key, data]) => ({
       key,
       droneId: data.droneId,
@@ -40,7 +40,6 @@ const DashboardOrdersPage = () => {
     }));
   }, [orders]);
 
-  // Função para toggle da seção do drone
   const toggleDroneSection = (droneId) => {
     const newExpanded = new Set(expandedDrones);
     if (newExpanded.has(droneId)) {
@@ -51,7 +50,6 @@ const DashboardOrdersPage = () => {
     setExpandedDrones(newExpanded);
   };
 
-  // Função para expandir/recolher todos
   const toggleAllDrones = () => {
     const allDroneKeys = groupedOrders.map(group => group.key);
     if (expandedDrones.size === allDroneKeys.length) {
@@ -62,7 +60,6 @@ const DashboardOrdersPage = () => {
   };
 
 
-  // Função para obter cor do drone baseado no ID
   const getDroneColor = (droneId) => {
     if (droneId === 'sem-drone') return 'bg-gray-500';
     
@@ -321,6 +318,9 @@ const DashboardOrdersPage = () => {
           type="danger"
         />
       )}
+
+            {loading && <Loading />}
+
     </main>
   )
 }

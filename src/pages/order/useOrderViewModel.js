@@ -6,11 +6,13 @@ export default function useOrderViewModel() {
 
     const [orders, setOrders] = useState([]);
     const [activeFilter, setActiveFilter] = useState('pendentes');
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
 
 
     const getPendingOrders = async () => {
         try {
+            setLoading(true)
             const response = await axios.get(`${import.meta.env.VITE_URL_BASE}/pedido/pendente`)
             const data = response.data;
             setOrders(data)
@@ -18,11 +20,14 @@ export default function useOrderViewModel() {
         } catch (error) {
             console.error("Erro ao mostrar pedidos pendentes", error)
 
+        } finally {
+            setLoading(false)
         }
     }
 
     const getTransportOrders = async () => {
         try {
+            setLoading(true)
             const response = await axios.get(`${import.meta.env.VITE_URL_BASE}/pedido/transporte`)
             const data = response.data;
             setOrders(data)
@@ -30,11 +35,14 @@ export default function useOrderViewModel() {
         } catch (error) {
             console.error("Erro ao mostrar pedidos em transporte", error)
 
+        } finally {
+            setLoading(false)
         }
     }
 
     const getDeliveredOrders = async () => {
         try {
+            setLoading(true)
             const response = await axios.get(`${import.meta.env.VITE_URL_BASE}/pedido/entregue`)
             const data = response.data;
             setOrders(data)
@@ -42,6 +50,8 @@ export default function useOrderViewModel() {
         } catch (error) {
             console.error("Erro ao mostrar pedidos entregues", error)
 
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -60,12 +70,15 @@ export default function useOrderViewModel() {
     // ---------- DELETE PEDIDO ----------
     const deleteOrder = async (id) => {
         try {
+            setLoading(true)
             const response = await axios.delete(`${import.meta.env.VITE_URL_BASE}/pedido/${id}`)
             console.log(response.data)
             getPendingOrders();
         } catch (error) {
             console.error("Erro ao excluir pedido", error)
 
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -79,5 +92,5 @@ const toggleDeleteModal = (orderId = null) => {
   setIsOpenDeleteModal((prev) => !prev);
 };
 
-    return { orders, activeFilter, setActiveFilter, navigate, deleteOrder, toggleDeleteModal, isOpenDeleteModal, selectedOrderId }
+    return { orders, activeFilter, setActiveFilter, navigate, deleteOrder, toggleDeleteModal, isOpenDeleteModal, selectedOrderId, loading }
 }

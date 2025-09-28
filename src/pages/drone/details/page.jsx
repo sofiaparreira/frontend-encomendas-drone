@@ -5,6 +5,7 @@ import useDetailDroneViewModel from './useDetailDroneViewModel';
 import { FaClock } from 'react-icons/fa';
 import { FaLocationDot } from 'react-icons/fa6';
 import GridMap from '../../../components/GridMap'
+import Loading from '../../../components/Loading'
 
 const DroneDetailPage = () => {
   const { drone, startFlight, order } = useDetailDroneViewModel();
@@ -227,6 +228,9 @@ const DroneDetailPage = () => {
           </div>
         )}
       </div>
+
+            {loading && <Loading />}
+
     </main>
   );
 };

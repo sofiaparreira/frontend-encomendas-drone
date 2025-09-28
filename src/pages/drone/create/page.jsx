@@ -4,11 +4,12 @@ import useCreateDroneViewModel from './useCreateDroneViewModel'
 import { zipcodeMask } from '../../../masks/zipcodeMask'
 import ButtonDefault from '../../../components/button/ButtonDefault'
 import ButtonBack from '../../../components/button/ButtonBack'
+import Loading from '../../../components/Loading'
 
 const CreateDronePage = () => {
 
   const {
-    setDrone, drone, endereco, setEndereco, handleCEP, createDrone, updateCoordinates
+    setDrone, drone, endereco, setEndereco, handleCEP, createDrone, updateCoordinates, loading
   } = useCreateDroneViewModel();
 
   console.log("Drone", drone);
@@ -181,6 +182,8 @@ const CreateDronePage = () => {
           <ButtonDefault text={'Cadastrar'} variant='primary' type='submit' />
         </form>
       </div>
+
+      {loading && <Loading />}
     </main>
   )
 }

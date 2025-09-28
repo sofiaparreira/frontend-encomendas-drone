@@ -2,11 +2,11 @@ import React from 'react'
 import useGetDronesViewModel from './useGetDronesViewModel'
 import DroneCard from '../../components/card/DroneCard';
 import ButtonDefault from '../../components/button/ButtonDefault';
-
+import Loading from '../../components/Loading'
 const DashboardDronePage = () => {
 
     const {
-        drones, deleteDrone, navigate
+        drones, deleteDrone, navigate, loading
     } = useGetDronesViewModel();
     return (
 
@@ -39,6 +39,7 @@ const DashboardDronePage = () => {
                     />
                 ))}
             </section>
+      {loading && <Loading />}
 
         </main>
     )

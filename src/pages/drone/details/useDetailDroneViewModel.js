@@ -35,6 +35,7 @@ export default function useDetailDroneViewModel() {
     });
 
     const { id } = useParams();
+    const [loading, setLoading] = useState(false);
 
     console.log("id", id)
 
@@ -44,12 +45,15 @@ export default function useDetailDroneViewModel() {
             return;
         }
         try {
+            setLoading(true)
             const response = await axios.get(`${import.meta.env.VITE_URL_BASE}/drone/${id}`);
             const data = response.data;
             console.log("Data", data)
             setDrone(data)
         } catch (error) {
             console.error('Erro ao mostrar drone por id: ', error);
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -58,19 +62,20 @@ export default function useDetailDroneViewModel() {
     // ---------- INICIA VOO DO DRONE ----------
     const startFlight = async () => {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_URL_BASE}/drone/start-voo/${id}`)
+            setLoading(true)
+            const response = await axios.post(`${import.meta.env.VITE_URL_BASE}/drone/start-flight/${id}`)
             const data = response.data
             console.log("voo iniciado", data)
 
             getDroneById()
-        } catch (error) {
-                        console.error('Erro ao iniciar drone: ', error);
 
+        } catch (error) {
+            console.error('Erro ao iniciar drone: ', error);
+
+        } finally {
+            setLoading(false)
         }
     }
-
-    // ---------- ATUALIZAR STATUS DO DRONE ----------
-
 
     // ---------- GET PEDIDO DO DRONE ----------
 
@@ -80,7 +85,9 @@ export default function useDetailDroneViewModel() {
             return;
         }
 
+
         try {
+            setLoading(true)
             const response = await axios.get(`${import.meta.env.VITE_URL_BASE}/pedido/drone/${id}`);
             const data = response.data
             setOrder(data)
@@ -88,6 +95,8 @@ export default function useDetailDroneViewModel() {
         } catch (error) {
             console.error("Erro ao encontrar pedido: ", error);
 
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -98,5 +107,5 @@ export default function useDetailDroneViewModel() {
 
 
 
-    return { drone, startFlight, order }
+    return { drone, startFlight, order, loading }
 }

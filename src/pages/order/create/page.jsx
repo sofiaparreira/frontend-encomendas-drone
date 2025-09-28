@@ -5,6 +5,8 @@ import ButtonDefault from '../../../components/button/ButtonDefault';
 import ButtonBack from '../../../components/button/ButtonBack';
 import useCreateOrderViewModel from './useCreateOrderViewModel';
 import Dropdown from '../../../components/Dropdown';
+import Loading from '../../../components/Loading';
+
 
 const CreateOrderPage = () => {
   const {
@@ -14,7 +16,8 @@ const CreateOrderPage = () => {
     createOrder,
     handleCEP,
     droneOptions,
-    priorities
+    priorities,
+    loading
 
   } = useCreateOrderViewModel();
 
@@ -166,6 +169,9 @@ const CreateOrderPage = () => {
           <ButtonDefault text={'Cadastrar Pedido'} variant='primary' type='submit' />
         </form>
       </div>
+
+      {loading && <Loading />}
+
     </main>
   );
 };

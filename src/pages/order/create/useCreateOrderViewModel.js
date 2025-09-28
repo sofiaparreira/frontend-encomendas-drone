@@ -61,33 +61,29 @@ export default function useCreateOrderViewModel() {
     }
   };
 
-  useEffect(() => {
-    const { estado, cidade, bairro, numero, coordX, coordY } = order.enderecoDestino;
-
-    if (estado && cidade && bairro && numero) {
-      updateCoordinates();
-    }
-  }, [order.enderecoDestino.estado, order.enderecoDestino.cidade, order.enderecoDestino.bairro, order.enderecoDestino.numero]);
-
 
   // ---------- SOLICITAR PEDIDO ----------
   const createOrder = async () => {
     try {
+      await updateCoordinates()
+      setLoading(true)
       const response = await axios.post(`${import.meta.env.VITE_URL_BASE}/pedido`, order)
       console.log('Resposta do servidor: ', response.data)
-      navigate("/order")
-    } catch (error) {
-  
-        if (error.response && error.response.data) {
-    // Aqui pegamos o erro que veio no body do backend
-    console.error('Erro do backend:', error.response.data.error);
-    toast.error(error.response.data.error); // mostra no toast
-  } else {
-    // Se for erro de rede ou outro problema
-    console.error('Erro inesperado:', error.message);
-    toast.error('Erro inesperado, tente novamente.');
-  }
 
+      navigate("/order")
+
+    } catch (error) {
+
+      if (error.response && error.response.data) {
+        console.error('Erro do backend:', error.response.data.error);
+        toast.error(error.response.data.error);
+      } else {
+        console.error('Erro inesperado:', error.message);
+        toast.error('Erro inesperado, tente novamente.');
+      }
+
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -95,10 +91,11 @@ export default function useCreateOrderViewModel() {
   // --- get drones para popular dropdown
   const [drones, setDrones] = useState([]);
 
-      console.log("drones", drones)
+  console.log("drones", drones)
 
   const getAllDrones = async () => {
     try {
+      setLoading(true)
       const response = await axios.get(`${import.meta.env.VITE_URL_BASE}/drone`);
       const data = response.data;
 
@@ -106,10 +103,11 @@ export default function useCreateOrderViewModel() {
       console.log(data)
     } catch (error) {
       console.error("Erro ao mostrar drones", error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  
 
   const droneOptions = drones
     .map(drone => ({
@@ -131,11 +129,14 @@ export default function useCreateOrderViewModel() {
   // --- GET PRIORIDADES ---
   const getPriority = async () => {
     try {
+      setLoading(true)
       const response = await axios.get(`${import.meta.env.VITE_URL_BASE}/prioridade`);
       setPriorities(response.data);
       console.log(response.data)
     } catch (error) {
       console.error("Erro ao buscar prioridades:", error);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -146,5 +147,5 @@ export default function useCreateOrderViewModel() {
   }, [])
 
 
-  return { order, setOrder, handleCEP, updateCoordinates, drones, loading, droneOptions, createOrder, priorities }
+  return { order, setOrder, handleCEP, updateCoordinates, drones, loading, droneOptions, createOrder, priorities, loading }
 }

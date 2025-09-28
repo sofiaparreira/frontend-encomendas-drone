@@ -30,12 +30,14 @@ export default function useCreateDroneViewModel() {
   const [isCreating, setIsCreating] = useState(false);
   const navigate = useNavigate();
 
-  const gettingCoordsRef = useRef(false);
+  const [loading, setLoading] = useState(false);
 
+  const gettingCoordsRef = useRef(false);
   const updateCoordinates = async () => {
     if (gettingCoordsRef.current) return null;
 
     try {
+      setLoading(true)
       gettingCoordsRef.current = true;
       setIsGettingCoords(true);
 
@@ -60,16 +62,12 @@ export default function useCreateDroneViewModel() {
     } finally {
       gettingCoordsRef.current = false;
       setIsGettingCoords(false);
+      setLoading(false)
     }
   };
 
-  useEffect(() => {
-    const { estado, cidade, bairro, numero } = endereco;
-    if (estado && cidade && bairro && numero) {
-      updateCoordinates();
-    }
-  }, [endereco.estado, endereco.cidade, endereco.bairro, endereco.numero]);
 
+  // --- viacep ---
   const handleCEP = async (cep) => {
     const enderecoData = await getAddressFromCEP(cep);
     if (enderecoData) {
@@ -80,12 +78,15 @@ export default function useCreateDroneViewModel() {
     }
   };
 
-   
+   // ---------- CADASTRAR DRONE ----------
   const createDrone = async () => {
     if (isCreating) return; 
     setIsCreating(true);
 
     try {
+      setLoading(true)
+
+      await updateCoordinates();
       if (!drone.coordX || !drone.coordY) {
         const coords = await updateCoordinates();
         if (!coords) {
@@ -121,8 +122,9 @@ export default function useCreateDroneViewModel() {
       
     } finally {
       setIsCreating(false);
+      setLoading(false)
     }
   };
 
-  return { createDrone, setDrone, drone, endereco, setEndereco, handleCEP, updateCoordinates, isGettingCoords, isCreating };
+  return { createDrone, setDrone, drone, endereco, setEndereco, handleCEP, updateCoordinates, isGettingCoords, isCreating , loading};
 }
