@@ -5,30 +5,31 @@ import React from 'react'
 import DashboardDronePage from './pages/drone/page';
 import CreateOrderPage from './pages/order/create/page';
 import DashboardOrdersPage from './pages/order/page';
-import Sidebar from './components/Sidebar'; // ajuste o caminho conforme sua estrutura
+import Sidebar from './components/Sidebar'; 
 import SettingsPage from './pages/settings/page';
 import DroneDetailPage from './pages/drone/details/page';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import DashboardPage from './pages/dashboard/page';
 
 
-// Componente wrapper que contém a sidebar e o conteúdo
+
 const AppContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeRoute, setActiveRoute] = useState('dashboard');
 
-  // Função para determinar a rota ativa baseada no pathname
+ 
   const getActiveRoute = (pathname) => {
-    // Para rotas que começam com /drone (incluindo /drone/123, /drone/create, etc.)
+    
     if (pathname.startsWith('/drone')) {
       return 'drones';
     }
-    // Para rotas que começam com /order
+    
     if (pathname.startsWith('/order')) {
       return 'pedidos';
     }
-    // Para outras rotas específicas
+    
     if (pathname === '/settings') {
       return 'configuracoes';
     }
@@ -36,7 +37,7 @@ const AppContent = () => {
       return 'dashboard';
     }
     
-    // Fallback para dashboard
+    
     return 'dashboard';
   };
 
@@ -75,7 +76,7 @@ const AppContent = () => {
       
       <div className="flex-1 overflow-auto">
         <Routes>
-          <Route path="/dashboard" element={<div className="p-8"><h1 className="text-2xl font-bold">Dashboard Principal</h1></div>} />
+          <Route path="/dashboard" element={<DashboardPage />} />
 
           <Route path="/drone" element={<DashboardDronePage />} />
           <Route path="/drone/create" element={<CreateDronePage />} />

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import useOrderViewModel from './useOrderViewModel'
 import OrderCard from '../../components/card/OrderCard';
-import { FaClock, FaTruck, FaChevronDown, FaChevronRight, FaEye } from 'react-icons/fa';
+import { FaClock, FaChevronDown, FaChevronRight, FaEye } from 'react-icons/fa';
 import { FaCircleCheck } from 'react-icons/fa6';
 import { MdFlightTakeoff } from 'react-icons/md';
 import ButtonDefault from '../../components/button/ButtonDefault';
@@ -319,20 +319,6 @@ const DashboardOrdersPage = () => {
           </button>
           
           <button
-            onClick={() => setActiveFilter('em_transito')}
-            className={`
-              flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer
-              ${activeFilter === 'em_transito'
-                ? 'bg-blue-500 text-white shadow-md transform scale-105'
-                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-              }
-            `}
-          >
-            <FaTruck />
-            Em Trânsito
-          </button>
-          
-          <button
             onClick={() => setActiveFilter('entregues')}
             className={`
               flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer
@@ -354,13 +340,11 @@ const DashboardOrdersPage = () => {
           <div className={`
             inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
             ${activeFilter === 'pendentes' ? 'bg-yellow-100 text-yellow-800' : ''}
-            ${activeFilter === 'em_transito' ? 'bg-blue-100 text-blue-800' : ''}
             ${activeFilter === 'entregues' ? 'bg-green-100 text-green-800' : ''}
           `}>
             {activeFilter === 'pendentes' && <FaClock />}
-            {activeFilter === 'em_transito' && <FaTruck />}
             {activeFilter === 'entregues' && <FaCircleCheck />}
-            Exibindo: {activeFilter === 'em_transito' ? 'Em Trânsito' : activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}
+            Exibindo: {activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}
           </div>
           
           {/* Botão "Expandir/Recolher Todos" só aparece para status que têm agrupamento */}

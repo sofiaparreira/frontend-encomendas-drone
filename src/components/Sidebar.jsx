@@ -36,7 +36,7 @@ const Sidebar = ({ activeRoute, onRouteChange }) => {
       label: 'Pedidos', 
       icon: MdLocalShipping, 
       route: '/order',
-      badge: '12' 
+      badge: null 
     },
     { 
       id: 'drones', 
