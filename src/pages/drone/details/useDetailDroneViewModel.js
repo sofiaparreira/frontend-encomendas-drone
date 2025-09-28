@@ -14,7 +14,9 @@ export default function useDetailDroneViewModel() {
         coordY: '',
         status: 'disponivel',
         velocidadeKMH: 0,
-        tempoVooMax: 0
+        tempoVooMax: 0,
+        homeCoordX: 0,
+        homeCoordY: 0
     });
 
     const [order, setOrder] = useState({
@@ -78,7 +80,6 @@ export default function useDetailDroneViewModel() {
     }
 
     // ---------- GET PEDIDO DO DRONE ----------
-
     const getPedidoByDroneId = async () => {
         if (!id) {
             console.log("Drone não encontrado")
@@ -100,6 +101,33 @@ export default function useDetailDroneViewModel() {
         }
     }
 
+// --- RECARREGAR BATERIA DO DRONE ---
+const rechargeBaterry = () => {
+    try {
+        setLoading(true)
+        const response = new axios.patch(`${import.meta.env.VITE_URL_BASE}/drone/recharge/${id}`)
+        console.log(response.data)
+    } catch (error) {
+                    console.error("Erro ao encontrar pedido: ", error);
+
+    } finally {
+        setLoading(false)
+    }
+}
+
+
+    // --- MOSTRA A SIMULAÇÃO DE VOO EM TEMPO REAL ---
+   useEffect(() => {
+    const ws = new WebSocket("ws://localhost:8080");
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setDrone(data);
+    };
+    ws.onclose = () => console.log("Conexão WebSocket fechada");
+    return () => ws.close();
+}, []);
+
+
     useEffect(() => {
         getDroneById();
         getPedidoByDroneId();
@@ -107,5 +135,5 @@ export default function useDetailDroneViewModel() {
 
 
 
-    return { drone, startFlight, order, loading }
+    return { drone, startFlight, order, loading, rechargeBaterry }
 }

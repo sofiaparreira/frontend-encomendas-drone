@@ -34,6 +34,7 @@ export default function useCreateDroneViewModel() {
   const [loading, setLoading] = useState(false);
 
   const gettingCoordsRef = useRef(false);
+
   const updateCoordinates = async () => {
     if (gettingCoordsRef.current) return null;
 
@@ -81,59 +82,56 @@ export default function useCreateDroneViewModel() {
 
   // ---------- CADASTRAR DRONE ----------
   const createDrone = async () => {
-    if (isCreating) return;
-    setIsCreating(true);
+  if (isCreating) return;
+  setIsCreating(true);
 
-    try {
-      setLoading(true)
+  try {
+    setLoading(true);
 
-      await updateCoordinates();
-      if (!drone.coordX || !drone.coordY) {
-        const coords = await updateCoordinates();
-        if (!coords) {
-          throw new Error("Não foi possível obter coordenadas a partir do endereço. Verifique o endereço ou tente inserir coordenadas manualmente.");
-        }
-      }
-
-      const parseNum = (v) => {
-        if (v === undefined || v === null) return NaN;
-        if (typeof v === "number") return v;
-        return Number(String(v).replace(",", ".").trim());
-      };
-
-      const lat = parseNum(drone.coordX);
-      const lon = parseNum(drone.coordY);
-
-      if (Number.isNaN(lat) || Number.isNaN(lon)) {
-        throw new Error("Coordenadas inválidas. Confirme as coordenadas no endereço antes de criar o drone.");
-      }
-
-      const payload = {
-        ...drone,
-        coordX: lat,
-        coordY: lon
-      };
-
-      const response = await axios.post(`${import.meta.env.VITE_URL_BASE}/drone`, payload);
-      console.log('Resposta do servidor', response.data);
-
-      navigate("/drone");
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.errors) {
-        error.response.data.errors.forEach((err) => {
-          const message = Object.values(err)[0];
-          toast.error(message);
-        });
-      } else {
-        console.error("Erro inesperado:", error);
-        toast.error("Ocorreu um erro inesperado");
-      }
+    const coords = await updateCoordinates();
+    if (!coords || coords.lat == null || coords.lon == null) {
+      throw new Error("Não foi possível obter coordenadas a partir do endereço. Verifique o endereço ou insira manualmente.");
     }
-    finally {
-      setIsCreating(false);
-      setLoading(false)
-    }
-  };
 
-  return { createDrone, setDrone, drone, endereco, setEndereco, handleCEP, updateCoordinates, isGettingCoords, isCreating, loading };
+    const parseNum = (v) => {
+      if (v === undefined || v === null) return NaN;
+      if (typeof v === "number") return v;
+      return Number(String(v).replace(",", ".").trim());
+    };
+
+    const lat = parseNum(coords.lat);
+    const lon = parseNum(coords.lon);
+
+    if (Number.isNaN(lat) || Number.isNaN(lon)) {
+      throw new Error("Coordenadas inválidas. Confirme as coordenadas antes de criar o drone.");
+    }
+
+    const payload = {
+      ...drone,
+      coordX: lat,
+      coordY: lon
+    };
+
+    const response = await axios.post(`${import.meta.env.VITE_URL_BASE}/drone`, payload);
+    console.log('Resposta do servidor', response.data);
+
+    navigate("/drone");
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.response.data.errors.forEach((err) => {
+        const message = Object.values(err)[0];
+        toast.error(message);
+      });
+    } else {
+      console.error("Erro inesperado:", error);
+      toast.error("Ocorreu um erro inesperado");
+    }
+  } finally {
+    setIsCreating(false);
+    setLoading(false)
+  }
+};
+
+
+  return { createDrone, setDrone, drone, endereco, setEndereco, handleCEP, updateCoordinates, isCreating, loading };
 }

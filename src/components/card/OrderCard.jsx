@@ -1,11 +1,12 @@
 import React from 'react';
 import ButtonDefault from '../button/ButtonDefault';
+import { FaLocationDot } from 'react-icons/fa6';
+import { GiWeight } from 'react-icons/gi';
 
 const OrderCard = ({
   id,
   enderecoDestino,
   status,
-  droneId,
   peso,
   dataCriacao,
   dataEntrega,
@@ -13,7 +14,7 @@ const OrderCard = ({
   prioridade,
   onCancel
 }) => {
-  // Função para determinar a cor do status
+
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'pendente':
@@ -30,7 +31,7 @@ const OrderCard = ({
     }
   };
 
-  // Função para formatar data
+  // formatar data
   const formatDate = (dateString) => {
     if (!dateString) return '--';
     const date = new Date(dateString);
@@ -43,7 +44,7 @@ const OrderCard = ({
     });
   };
 
-  // Função para formatar endereço
+  // formatar endereco
   const formatAddress = (endereco) => {
     if (!endereco) return 'Endereço não informado';
     const { rua, numero, bairro, cidade, estado } = endereco;
@@ -51,20 +52,6 @@ const OrderCard = ({
   };
 
 
-
-  // Ícone de localização
-  const LocationIcon = () => (
-    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-    </svg>
-  );
-
-  // Ícone de peso
-  const WeightIcon = () => (
-    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2h6v2H7V4zm0 4h6v2H7V8zm0 4h6v2H7v-2z" />
-    </svg>
-  );
 
   return (
     <div className='relative bg-white border border-gray-200 rounded-xl p-6 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-200/60 transition-all duration-300 hover:-translate-y-1 group overflow-hidden'>
@@ -82,7 +69,6 @@ const OrderCard = ({
         </span>
       </div>
 
-      {/* Endereços */}
       <div className="space-y-3 mb-4">
         <div className="flex items-center justify-center">
           <div className="w-full h-px bg-gray-200 relative">
@@ -95,11 +81,9 @@ const OrderCard = ({
         </div>
 
 
-<span className=''>
-  {prioridade}
-</span>
+
         <div className="flex items-start gap-2 text-gray-600">
-          <LocationIcon />
+          <FaLocationDot />
           <div className="flex-1">
             <p className='text-xs text-gray-500 font-medium mb-1'>DESTINO</p>
             <p className='text-sm'>{formatAddress(enderecoDestino)}</p>
@@ -107,23 +91,29 @@ const OrderCard = ({
         </div>
       </div>
 
-      {/* Informações adicionais */}
       <div className="grid lg:grid-cols-4 grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
         <div className="flex items-center gap-2">
-          <WeightIcon />
+          <GiWeight  />
           <div>
             <p className="text-xs text-gray-500">Peso da encomenda</p>
             <p className="font-semibold text-gray-900">{peso ? `${peso}kg` : '--'}</p>
           </div>
         </div>
 
-    
+
 
         <div>
-          <p className="text-xs text-gray-500">Prioridade</p>
-          <p className="font-semibold text-gray-900 text-sm">
+          <p className="text-xs text-gray-500 mb-1">Prioridade</p>
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${prioridade === 'alta'
+              ? 'bg-red-100 text-red-800'
+              : prioridade === 'media'
+                ? 'bg-orange-100 text-orange-800'
+                : prioridade
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-gray-100 text-gray-600'
+            }`}>
             {prioridade ?? 'Sem prioridade'}
-          </p>
+          </span>
         </div>
 
         <div>
@@ -134,7 +124,6 @@ const OrderCard = ({
         </div>
       </div>
 
-      {/* Data de entrega se houver */}
       {dataEntrega && (
         <div className="p-3 bg-green-50 rounded-lg border border-green-200">
           <p className="text-xs text-green-600 font-medium">ENTREGUE EM</p>
@@ -142,7 +131,6 @@ const OrderCard = ({
         </div>
       )}
 
-      {/* Observações se houver */}
       {observacoes && (
         <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-xs text-blue-600 font-medium mb-1">OBSERVAÇÕES</p>
@@ -150,7 +138,6 @@ const OrderCard = ({
         </div>
       )}
 
-      {/* Botões de ação */}
       <div className="mt-6 flex justify-end gap-2">
         {/* <div className="flex-1">
           <ButtonDefault text='Ver detalhes' />

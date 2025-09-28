@@ -21,6 +21,12 @@ const DashboardOrdersPage = () => {
   const groupedOrders = useMemo(() => {
     if (!orders || orders.length === 0) return [];
     
+    // Para pedidos entregues, não agrupar por drone
+    if (activeFilter === 'entregues') {
+      return orders;
+    }
+    
+    // Para outros status, agrupar por drone
     const groups = orders.reduce((acc, order) => {
       const droneKey = order.droneId?._id || 'sem-drone';
       if (!acc[droneKey]) {
@@ -38,7 +44,7 @@ const DashboardOrdersPage = () => {
       droneId: data.droneId,
       orders: data.orders
     }));
-  }, [orders]);
+  }, [orders, activeFilter]);
 
   const toggleDroneSection = (droneId) => {
     const newExpanded = new Set(expandedDrones);
@@ -59,7 +65,6 @@ const DashboardOrdersPage = () => {
     }
   };
 
-
   const getDroneColor = (droneId) => {
     if (droneId === 'sem-drone') return 'bg-gray-500';
     
@@ -76,93 +81,49 @@ const DashboardOrdersPage = () => {
     return colors[Math.abs(hash) % colors.length];
   };
 
-  return (
-    <main className='bg-gray-50 min-h-screen p-8'>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className='text-2xl font-bold'>Pedidos</h1>
+  const renderDeliveredOrders = () => {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <FaCircleCheck className="text-green-500" />
+            Pedidos Entregues
+          </h3>
+          <p className="text-sm text-gray-600 mt-1">
+            {orders.length} pedido{orders.length !== 1 ? 's' : ''} entregu{orders.length !== 1 ? 'es' : 'e'}
+          </p>
+        </div>
         
-        <div className="w-48">
-          <ButtonDefault text={'Solicitar pedido'} onClick={() => navigate("/order/create")} />
-        </div>
-      </div>
-
-      <section className='flex justify-end mb-6'>
-         <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-200">
-          <button
-            onClick={() => setActiveFilter('pendentes')}
-            className={`
-              flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer
-              ${activeFilter === 'pendentes'
-                ? 'bg-yellow-500 text-white shadow-md transform scale-105'
-                : 'text-gray-600 hover:text-yellow-600 hover:bg-yellow-50'
-              }
-            `}
-          >
-            <FaClock />
-            Pendentes
-          </button>
-          
-          <button
-            onClick={() => setActiveFilter('em_transito')}
-            className={`
-              flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer
-              ${activeFilter === 'em_transito'
-                ? 'bg-blue-500 text-white shadow-md transform scale-105'
-                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-              }
-            `}
-          >
-            <FaTruck />
-            Em Trânsito
-          </button>
-          
-          <button
-            onClick={() => setActiveFilter('entregues')}
-            className={`
-              flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer
-              ${activeFilter === 'entregues'
-                ? 'bg-green-500 text-white shadow-md transform scale-105'
-                : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
-              }
-            `}
-          >
-            <FaCircleCheck />
-            Entregues
-          </button>
-        </div>
-      </section>
-
-      {/* Indicador visual do filtro ativo */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div className={`
-            inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
-            ${activeFilter === 'pendentes' ? 'bg-yellow-100 text-yellow-800' : ''}
-            ${activeFilter === 'em_transito' ? 'bg-blue-100 text-blue-800' : ''}
-            ${activeFilter === 'entregues' ? 'bg-green-100 text-green-800' : ''}
-          `}>
-            {activeFilter === 'pendentes' && <FaClock />}
-            {activeFilter === 'em_transito' && <FaTruck />}
-            {activeFilter === 'entregues' && <FaCircleCheck />}
-            Exibindo: {activeFilter === 'em_transito' ? 'Em Trânsito' : activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}
-          </div>
-          
-          {groupedOrders.length > 0 && (
-            <button
-              onClick={toggleAllDrones}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              {expandedDrones.size === groupedOrders.length ? 'Recolher Todos' : 'Expandir Todos'}
-            </button>
+        <div className="space-y-3">
+          {orders.length > 0 ? (
+            orders.map((order) => (
+              <OrderCard
+                key={order._id}
+                id={order._id}
+                status={order.status}
+                enderecoDestino={order.enderecoDestino}
+                dataCriacao={order.createdAt}
+                peso={order.pesoKg}
+                prioridade={order.prioridadeId.nome}
+                onCancel={() => toggleDeleteModal(order._id)}
+              />
+            ))
+          ) : (
+            <div className="text-center py-12">
+              <FaCircleCheck className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 text-lg">Nenhum pedido entregue encontrado</p>
+              <p className="text-gray-400 text-sm mt-2">
+                Os pedidos entregues aparecerão aqui
+              </p>
+            </div>
           )}
         </div>
       </div>
+    );
+  };
 
-      <section className='mb-8'>
-        <p className="text-gray-600">Pedidos organizados por drone. Clique nas seções para expandir/recolher.</p>
-      </section>
-
-      {/* Seções agrupadas por drone */}
+  const renderGroupedOrders = () => {
+    return (
       <div className='space-y-4'>
         {groupedOrders.length > 0 ? (
           groupedOrders.map((group) => {
@@ -277,7 +238,7 @@ const DashboardOrdersPage = () => {
                                 enderecoDestino={order.enderecoDestino}
                                 dataCriacao={order.createdAt}
                                 peso={order.pesoKg}
-                                prioridade={order.prioridade}
+                                prioridade={order.prioridadeId.nome}
                                 onCancel={() => toggleDeleteModal(order._id)}
                               />
                             </div>
@@ -304,6 +265,103 @@ const DashboardOrdersPage = () => {
           </div>
         )}
       </div>
+    );
+  };
+
+  return (
+    <main className='bg-gray-50 min-h-screen p-8'>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className='text-2xl font-bold'>Pedidos</h1>
+        
+        <div className="w-48">
+          <ButtonDefault text={'Solicitar pedido'} onClick={() => navigate("/order/create")} />
+        </div>
+      </div>
+
+      <section className='flex justify-end mb-6'>
+         <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-200">
+          <button
+            onClick={() => setActiveFilter('pendentes')}
+            className={`
+              flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer
+              ${activeFilter === 'pendentes'
+                ? 'bg-yellow-500 text-white shadow-md transform scale-105'
+                : 'text-gray-600 hover:text-yellow-600 hover:bg-yellow-50'
+              }
+            `}
+          >
+            <FaClock />
+            Pendentes
+          </button>
+          
+          <button
+            onClick={() => setActiveFilter('em_transito')}
+            className={`
+              flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer
+              ${activeFilter === 'em_transito'
+                ? 'bg-blue-500 text-white shadow-md transform scale-105'
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+              }
+            `}
+          >
+            <FaTruck />
+            Em Trânsito
+          </button>
+          
+          <button
+            onClick={() => setActiveFilter('entregues')}
+            className={`
+              flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer
+              ${activeFilter === 'entregues'
+                ? 'bg-green-500 text-white shadow-md transform scale-105'
+                : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
+              }
+            `}
+          >
+            <FaCircleCheck />
+            Entregues
+          </button>
+        </div>
+      </section>
+
+      {/* Indicador visual do filtro ativo */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div className={`
+            inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
+            ${activeFilter === 'pendentes' ? 'bg-yellow-100 text-yellow-800' : ''}
+            ${activeFilter === 'em_transito' ? 'bg-blue-100 text-blue-800' : ''}
+            ${activeFilter === 'entregues' ? 'bg-green-100 text-green-800' : ''}
+          `}>
+            {activeFilter === 'pendentes' && <FaClock />}
+            {activeFilter === 'em_transito' && <FaTruck />}
+            {activeFilter === 'entregues' && <FaCircleCheck />}
+            Exibindo: {activeFilter === 'em_transito' ? 'Em Trânsito' : activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}
+          </div>
+          
+          {/* Botão "Expandir/Recolher Todos" só aparece para status que têm agrupamento */}
+          {activeFilter !== 'entregues' && groupedOrders.length > 0 && (
+            <button
+              onClick={toggleAllDrones}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              {expandedDrones.size === groupedOrders.length ? 'Recolher Todos' : 'Expandir Todos'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      <section className='mb-8'>
+        <p className="text-gray-600">
+          {activeFilter === 'entregues' 
+            ? 'Lista de pedidos entregues.' 
+            : 'Pedidos organizados por drone. Clique nas seções para expandir/recolher.'
+          }
+        </p>
+      </section>
+
+      {/* Renderização condicional baseada no filtro */}
+      {activeFilter === 'entregues' ? renderDeliveredOrders() : renderGroupedOrders()}
 
       {/* Modal FORA do map */}
       {isOpenDeleteModal && (
@@ -317,7 +375,7 @@ const DashboardOrdersPage = () => {
         />
       )}
 
-            {loading && <Loading />}
+      {loading && <Loading />}
 
     </main>
   )

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { getAddressFromCEP } from "../../../utils/getAddressFromCEP";
 import { getCoordinatesFromAddress } from "../../../utils/getCoordinatesFromAddress";
 import axios from "axios";
@@ -47,47 +47,98 @@ export default function useCreateOrderViewModel() {
 
 
   // ------ GERAR COORDENADAS A PARTIR DO ENDEREÇO ------ 
-  const updateCoordinates = async () => {
-    const coords = await getCoordinatesFromAddress(order.enderecoDestino);
-    if (coords) {
-      setOrder(prev => ({
-        ...prev,
-        enderecoDestino: {
-          ...prev.enderecoDestino,
-          coordX: coords.lat,
-          coordY: coords.lon
-        }
-      }));
-    }
-  };
+ const gettingCoordsRef = useRef(false);
 
+// ------ GERAR COORDENADAS A PARTIR DO ENDEREÇO ------
+const updateCoordinates = async () => {
+  if (gettingCoordsRef.current) return null;
 
-  // ---------- SOLICITAR PEDIDO ----------
-  const createOrder = async () => {
-    try {
-      await updateCoordinates()
-      setLoading(true)
-      const response = await axios.post(`${import.meta.env.VITE_URL_BASE}/pedido`, order)
-      console.log('Resposta do servidor: ', response.data)
+  const { enderecoDestino } = order;
 
-      navigate("/order")
-
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.errors) {
-        error.response.data.errors.forEach((err) => {
-          const message = Object.values(err)[0];
-          toast.error(message);
-        });
-      } else {
-        console.error("Erro inesperado:", error);
-        toast.error("Ocorreu um erro inesperado");
-      }
-    } finally {
-      setLoading(false)
-    }
+  // Verifica se o endereço está completo
+  if (!enderecoDestino?.cep || !enderecoDestino?.rua || !enderecoDestino?.cidade || !enderecoDestino?.estado) {
+    toast.error("Preencha todos os campos do endereço antes de gerar coordenadas.");
+    return null;
   }
 
+  try {
+    setLoading(true);
+    gettingCoordsRef.current = true;
 
+    const coords = await getCoordinatesFromAddress(enderecoDestino);
+
+    if (!coords || coords.lat == null || coords.lon == null) {
+      toast.error("Não foi possível gerar coordenadas a partir do endereço fornecido.");
+      return null;
+    }
+
+    const lat = typeof coords.lat === "string" ? coords.lat.trim() : coords.lat;
+    const lon = typeof coords.lon === "string" ? coords.lon.trim() : coords.lon;
+
+    // Atualiza o pedido com coordenadas válidas
+    setOrder(prev => ({
+      ...prev,
+      coordX: lat,
+      coordY: lon
+    }));
+
+    return { lat, lon };
+  } catch (err) {
+    console.error("Erro ao obter coordenadas:", err);
+    toast.error("Erro ao gerar coordenadas. Tente novamente.");
+    return null;
+  } finally {
+    gettingCoordsRef.current = false;
+    setLoading(false);
+  }
+};
+
+// ---------- SOLICITAR PEDIDO ----------
+const createOrder = async () => {
+  try {
+    setLoading(true);
+
+    const coords = await updateCoordinates();
+    if (!coords) {
+      // Se coords for null, não segue com o envio
+      return;
+    }
+
+    const lat = Number(coords.lat);
+    const lon = Number(coords.lon);
+
+    if (Number.isNaN(lat) || Number.isNaN(lon) || lat === 0 || lon === 0) {
+      toast.error("Coordenadas inválidas. Confirme o endereço ou insira manualmente.");
+      return;
+    }
+
+    const payload = {
+      ...order,
+     enderecoDestino: {
+        ...order.enderecoDestino,
+        coordX: lat,
+        coordY: lon
+      }
+    };
+
+    const response = await axios.post(`${import.meta.env.VITE_URL_BASE}/pedido`, payload);
+    console.log('Resposta do servidor: ', response.data);
+
+    navigate("/order");
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.response.data.errors.forEach((err) => {
+        const message = Object.values(err)[0];
+        toast.error(message);
+      });
+    } else {
+      console.error("Erro inesperado:", error);
+      toast.error("Ocorreu um erro inesperado");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
   // --- get drones para popular dropdown
   const [drones, setDrones] = useState([]);
 

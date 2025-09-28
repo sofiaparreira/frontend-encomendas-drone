@@ -3,9 +3,10 @@ import { MdMyLocation, MdFlight } from 'react-icons/md';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 
 const GridMap = ({
-  gridSize = 50, // Mínimo 50
+  gridSize = 50, // mínimo 50
   droneLatLong,
   destinationLatLong,
+  baseLatLong, // posição da base
   obstacles = [],
   onCellClick,
   enderecoDestino = {},
@@ -22,51 +23,40 @@ const GridMap = ({
   const longMin = -44.050; // Oeste
   const longMax = -43.800; // Leste
 
-  // Garantir que o grid seja no mínimo 50x50
   const actualGridSize = Math.max(50, gridSize);
 
-  // Função para normalizar valores (com clamp 0..1)
   const normalize = (value, min, max) => {
     if (typeof value !== 'number' || isNaN(value)) return 0;
     const v = (value - min) / (max - min);
     return Math.min(1, Math.max(0, v));
   };
 
-  // Função para converter lat/long em índice da malha
   const toGrid = (lat, long) => {
     const latNorm = normalize(lat, latMin, latMax);
     const longNorm = normalize(long, longMin, longMax);
-
-    const row = Math.floor((1 - latNorm) * (actualGridSize - 1)); // latitude -> y (topo = 0)
+    const row = Math.floor((1 - latNorm) * (actualGridSize - 1)); // latitude -> y
     const col = Math.floor(longNorm * (actualGridSize - 1));      // longitude -> x
     return { x: col, y: row };
   };
 
-  // -- Obstáculo fixo que você pediu --
+  // Obstáculo fixo
   const obstacleLatLong = useMemo(() => ({ lat: -19.850856, long: -43.950067 }), []);
   const obstacleCell = useMemo(() => toGrid(obstacleLatLong.lat, obstacleLatLong.long), [obstacleLatLong.lat, obstacleLatLong.long, actualGridSize]);
 
-  // Merge obstáculos passados por props com o obstáculo novo, evitando duplicatas
   const mergedObstacles = useMemo(() => {
     const exists = obstacles.some(obs => obs.x === obstacleCell.x && obs.y === obstacleCell.y);
-    if (exists) return obstacles;
-    return [...obstacles, obstacleCell];
+    return exists ? obstacles : [...obstacles, obstacleCell];
   }, [obstacles, obstacleCell.x, obstacleCell.y]);
 
-  // Transformar lat/long em posição da malha (proteções caso props venham undefined)
-  const dronePosition = droneLatLong && typeof droneLatLong.lat === 'number' && typeof droneLatLong.long === 'number'
-    ? toGrid(droneLatLong.lat, droneLatLong.long)
-    : { x: -1, y: -1 };
+  // posições
+  const dronePosition = droneLatLong?.lat && droneLatLong?.long ? toGrid(droneLatLong.lat, droneLatLong.long) : { x: -1, y: -1 };
+  const destination = destinationLatLong?.lat && destinationLatLong?.long ? toGrid(destinationLatLong.lat, destinationLatLong.long) : { x: -1, y: -1 };
+  const basePosition = baseLatLong?.lat && baseLatLong?.long ? toGrid(baseLatLong.lat, baseLatLong.long) : null;
 
-  const destination = destinationLatLong && typeof destinationLatLong.lat === 'number' && typeof destinationLatLong.long === 'number'
-    ? toGrid(destinationLatLong.lat, destinationLatLong.long)
-    : { x: -1, y: -1 };
-
-  // Calcular o tamanho da malha baseado na largura disponível
   useEffect(() => {
     const updateMapSize = () => {
       const availableWidth = Math.min(window.innerWidth * 0.9, 800);
-      setMapSize(availableWidth - 32); // Subtrair padding
+      setMapSize(availableWidth - 32);
     };
     updateMapSize();
     window.addEventListener('resize', updateMapSize);
@@ -78,10 +68,12 @@ const GridMap = ({
   const isObstacle = (x, y) => mergedObstacles.some(obs => obs.x === x && obs.y === y);
   const isDestination = (x, y) => destination.x === x && destination.y === y;
   const isDronePosition = (x, y) => dronePosition.x === x && dronePosition.y === y;
+  const isBasePosition = (x, y) => basePosition && basePosition.x === x && basePosition.y === y;
 
   const getCellColor = (x, y) => {
     if (isDronePosition(x, y)) return 'bg-blue-500';
     if (isDestination(x, y)) return 'bg-green-500';
+    if (isBasePosition(x, y)) return 'bg-purple-500';
     if (isObstacle(x, y)) return 'bg-red-500';
     if (hoveredCell && hoveredCell.x === x && hoveredCell.y === y) return 'bg-gray-300';
     if (selectedCell && selectedCell.x === x && selectedCell.y === y) return 'bg-yellow-300';
@@ -114,45 +106,20 @@ const GridMap = ({
             title={`Posição: (${x}, ${y})`}
           >
             {isDronePosition(x, y) && (
-              <MdFlight
-                className="text-white"
-                style={{
-                  fontSize: Math.max(8, cellSize * 0.6),
-                  display: cellSize > 6 ? 'block' : 'none'
-                }}
-              />
+              <MdFlight className="text-white" style={{ fontSize: Math.max(8, cellSize * 0.6), display: cellSize > 6 ? 'block' : 'none' }} />
             )}
             {isDestination(x, y) && !isDronePosition(x, y) && (
-              <FaMapMarkerAlt
-                className="text-white"
-                style={{
-                  fontSize: Math.max(6, cellSize * 0.5),
-                  display: cellSize > 6 ? 'block' : 'none'
-                }}
-              />
+              <FaMapMarkerAlt className="text-white" style={{ fontSize: Math.max(6, cellSize * 0.5), display: cellSize > 6 ? 'block' : 'none' }} />
             )}
             {isObstacle(x, y) && cellSize > 4 && (
-              <div
-                className="bg-white rounded-full"
-                style={{
-                  width: Math.max(2, cellSize * 0.3),
-                  height: Math.max(2, cellSize * 0.3)
-                }}
-              />
+              <div className="bg-white rounded-full" style={{ width: Math.max(2, cellSize * 0.3), height: Math.max(2, cellSize * 0.3) }} />
             )}
-
-            {showCoordinates &&
-              cellSize > 20 &&
-              !isDronePosition(x, y) &&
-              !isDestination(x, y) &&
-              !isObstacle(x, y) && (
-                <span
-                  className="text-xs text-gray-600"
-                  style={{ fontSize: Math.max(6, cellSize / 6) }}
-                >
-                  {x},{y}
-                </span>
-              )}
+            {isBasePosition(x, y) && (
+              <div className="text-white font-bold" style={{ fontSize: Math.max(6, cellSize * 0.4) }}>🏠</div>
+            )}
+            {showCoordinates && cellSize > 20 && !isDronePosition(x, y) && !isDestination(x, y) && !isObstacle(x, y) && !isBasePosition(x, y) && (
+              <span className="text-xs text-gray-600" style={{ fontSize: Math.max(6, cellSize / 6) }}>{x},{y}</span>
+            )}
           </div>
         );
       }
@@ -183,6 +150,12 @@ const GridMap = ({
             <span>Destino</span>
           </div>
           <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-purple-500 rounded flex items-center justify-center">
+              <span className="text-white text-xs font-bold">🏠</span>
+            </div>
+            <span>Base</span>
+          </div>
+          <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-red-500 rounded flex items-center justify-center">
               <div className="w-1 h-1 bg-white rounded-full" />
             </div>
@@ -198,24 +171,18 @@ const GridMap = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
               <span className="font-medium text-gray-700">Posição do Drone:</span>
-              <span className="ml-2 text-blue-600 font-bold">
-                ({dronePosition.x}, {dronePosition.y})
-              </span>
+              <span className="ml-2 text-blue-600 font-bold">({dronePosition.x}, {dronePosition.y})</span>
             </div>
             {selectedCell && (
               <div>
                 <span className="font-medium text-gray-700">Célula Selecionada:</span>
-                <span className="ml-2 text-yellow-600 font-bold">
-                  ({selectedCell.x}, {selectedCell.y})
-                </span>
+                <span className="ml-2 text-yellow-600 font-bold">({selectedCell.x}, {selectedCell.y})</span>
               </div>
             )}
             {hoveredCell && (
               <div>
                 <span className="font-medium text-gray-700">Hover:</span>
-                <span className="ml-2 text-gray-600 font-bold">
-                  ({hoveredCell.x}, {hoveredCell.y})
-                </span>
+                <span className="ml-2 text-gray-600 font-bold">({hoveredCell.x}, {hoveredCell.y})</span>
               </div>
             )}
           </div>
@@ -224,8 +191,7 @@ const GridMap = ({
             <p>
               Endereço do destino: {enderecoDestino.rua}, {enderecoDestino.numero}, {enderecoDestino.bairro} - {enderecoDestino.cidade} - {enderecoDestino.estado}, {enderecoDestino.cep}
             </p>
-
-            <p className="mt-2">{obstacleLatLong.lat ===  -19.850856 && obstacleLatLong.long === -43.950067 ? "Zona de exclusão aérea: Aeroporto de pampulha"  : ""}</p>
+            <p className="mt-2">{obstacleLatLong.lat === -19.850856 && obstacleLatLong.long === -43.950067 ? "Zona de exclusão aérea: Aeroporto de Pampulha" : ""}</p>
           </div>
         </div>
       </div>
