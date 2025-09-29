@@ -24,7 +24,7 @@ const Sidebar = ({ activeRoute, onRouteChange }) => {
       id: 'dashboard', 
       label: 'Dashboard', 
       icon: MdDashboard, 
-      route: '/dashboard',
+      route: '/',
       badge: null
     },
     { 

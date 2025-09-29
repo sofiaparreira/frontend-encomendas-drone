@@ -1,7 +1,8 @@
+import React from 'react'
+
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import CreateDronePage from './pages/drone/create/page';
-import React from 'react'
 import DashboardDronePage from './pages/drone/page';
 import CreateOrderPage from './pages/order/create/page';
 import DashboardOrdersPage from './pages/order/page';
@@ -33,7 +34,7 @@ const AppContent = () => {
     if (pathname === '/settings') {
       return 'configuracoes';
     }
-    if (pathname === '/dashboard' || pathname === '/') {
+    if (pathname === '/' || pathname === '/') {
       return 'dashboard';
     }
     
@@ -57,13 +58,13 @@ const AppContent = () => {
         navigate('/order');
         break;
       case 'dashboard':
-        navigate('/dashboard');
+        navigate('/');
         break;
       case 'configuracoes':
         navigate('/settings')
         break;
       default:
-        navigate('/dashboard');
+        navigate('/');
     }
   };
 
@@ -76,7 +77,7 @@ const AppContent = () => {
       
       <div className="flex-1 overflow-auto">
         <Routes>
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/" element={<DashboardPage />} />
 
           <Route path="/drone" element={<DashboardDronePage />} />
           <Route path="/drone/create" element={<CreateDronePage />} />

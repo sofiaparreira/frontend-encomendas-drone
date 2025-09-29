@@ -6,6 +6,7 @@ import { HiOutlineStatusOnline, HiOutlineStatusOffline } from 'react-icons/hi'
 import { BiBattery } from 'react-icons/bi'
 import { PiDroneFill } from 'react-icons/pi'
 import { TbTruckDelivery, TbTruckReturn } from 'react-icons/tb'
+import Loading from '../../components/Loading'
 
 const DashboardPage = () => {
     const {
@@ -13,8 +14,11 @@ const DashboardPage = () => {
         pendingOrders,
         totalOrders,
         transportOrders,
-        drones
+        drones,
+        loading
     } = useDashboardViewModel()
+
+    
 
     const droneStats = {
         total: drones.length,
@@ -208,6 +212,7 @@ const DashboardPage = () => {
                     </div>
                 </section>
             </section>
+            {loading && <Loading />}
         </main>
     )
 }
