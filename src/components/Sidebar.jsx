@@ -2,14 +2,11 @@ import React from 'react';
 import { 
   MdDashboard, 
   MdLocalShipping, 
-  MdFlightTakeoff, 
-  MdAnalytics, 
-  MdSettings,
+  MdFlightTakeoff
 } from 'react-icons/md';
 
 const Sidebar = ({ activeRoute, onRouteChange }) => {
 
-  // Logo componente
   const Logo = () => (
     <div className="flex items-center gap-3 mb-8">
       <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
@@ -22,7 +19,6 @@ const Sidebar = ({ activeRoute, onRouteChange }) => {
     </div>
   );
 
-  // Itens do menu
   const menuItems = [
     { 
       id: 'dashboard', 
@@ -32,13 +28,6 @@ const Sidebar = ({ activeRoute, onRouteChange }) => {
       badge: null
     },
     { 
-      id: 'pedidos', 
-      label: 'Pedidos', 
-      icon: MdLocalShipping, 
-      route: '/order',
-      badge: null 
-    },
-    { 
       id: 'drones', 
       label: 'Drones', 
       icon: MdFlightTakeoff, 
@@ -46,18 +35,11 @@ const Sidebar = ({ activeRoute, onRouteChange }) => {
       badge: null
     },
     { 
-      id: 'analytics', 
-      label: 'Relatórios', 
-      icon: MdAnalytics, 
-      route: '/analytics',
-      badge: null
-    },
-    { 
-      id: 'configuracoes', 
-      label: 'Configurações', 
-      icon: MdSettings, 
-      route: '/settings',
-      badge: null
+      id: 'pedidos', 
+      label: 'Pedidos', 
+      icon: MdLocalShipping, 
+      route: '/order',
+      badge: null 
     }
   ];
 
@@ -72,7 +54,7 @@ const Sidebar = ({ activeRoute, onRouteChange }) => {
         <Logo />
       </div>
 
-      {/* navegacao */}
+      {/* navegação */}
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {menuItems.map((item) => {

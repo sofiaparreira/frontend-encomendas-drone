@@ -93,7 +93,7 @@ const CreateOrderPage = () => {
                   }
                 }));
                 const numericCEP = formatted.replace(/\D/g, '');
-                if (numericCEP.length === 8) handleCEP(numericCEP); // função que preenche enderecoDestino
+                if (numericCEP.length === 8) handleCEP(numericCEP); 
               }}
             />
 

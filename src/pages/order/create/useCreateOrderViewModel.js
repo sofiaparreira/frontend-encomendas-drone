@@ -5,8 +5,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-
-
 export default function useCreateOrderViewModel() {
 
   const [loading, setLoading] = useState(false);
@@ -55,7 +53,6 @@ const updateCoordinates = async () => {
 
   const { enderecoDestino } = order;
 
-  // Verifica se o endereço está completo
   if (!enderecoDestino?.cep || !enderecoDestino?.rua || !enderecoDestino?.cidade || !enderecoDestino?.estado) {
     toast.error("Preencha todos os campos do endereço antes de gerar coordenadas.");
     return null;
@@ -75,7 +72,6 @@ const updateCoordinates = async () => {
     const lat = typeof coords.lat === "string" ? coords.lat.trim() : coords.lat;
     const lon = typeof coords.lon === "string" ? coords.lon.trim() : coords.lon;
 
-    // Atualiza o pedido com coordenadas válidas
     setOrder(prev => ({
       ...prev,
       coordX: lat,
@@ -124,14 +120,12 @@ const createOrder = async () => {
     navigate("/order");
 
   } catch (error) {
-    // Se o backend enviar array de errors
     if (error.response?.data?.errors) {
       error.response.data.errors.forEach((err) => {
         const message = Object.values(err)[0];
         toast.error(message);
       });
 
-    // Se o backend enviar apenas "error" (como no caso do drone)
     } else if (error.response?.data?.error) {
       toast.error(error.response.data.error);
 

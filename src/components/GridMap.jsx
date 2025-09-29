@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { MdFlight, MdMyLocation } from 'react-icons/md';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 
@@ -11,15 +11,16 @@ const GridMap = ({
   onCellClick,
   showCoordinates = false,
   containerWidth = '100%',
-  mapWidth = 500,
-  mapHeight = 500
+  mapWidth = null,
+  mapHeight = null
 }) => {
   const [hoveredCell, setHoveredCell] = useState(null);
   const [selectedCell, setSelectedCell] = useState(null);
   const [mapSize, setMapSize] = useState(600);
   const [dronePosition, setDronePosition] = useState({ x: -1, y: -1 });
+  const gridRef = useRef(null);
 
-  // Limites geográficos
+  // Limites geográficos (mantive os seus)
   const latMin = -20.020;
   const latMax = -19.740;
   const longMin = -44.050;
@@ -27,18 +28,40 @@ const GridMap = ({
 
   const actualGridSize = Math.max(50, gridSize);
 
-  const normalize = (value, min, max) => Math.min(1, Math.max(0, (value - min) / (max - min)));
-
-  const toGrid = (lat, long) => {
-    const latNorm = normalize(lat, latMin, latMax);
-    const longNorm = normalize(long, longMin, longMax);
-    return {
-      x: Math.floor(longNorm * (actualGridSize - 1)),
-      y: Math.floor((1 - latNorm) * (actualGridSize - 1))
-    };
+  // ---------- helpers ----------
+  const parseNumber = (v) => {
+    if (v === undefined || v === null) return NaN;
+    if (typeof v === 'number') return v;
+    if (typeof v === 'string') return Number(v.replace(',', '.').trim());
+    return NaN;
   };
 
-  // Obstáculo fixo
+  const normalize = (value, min, max) => Math.min(1, Math.max(0, (value - min) / (max - min)));
+
+  // toGrid agora recebe raw lat/long e faz round
+  const toGrid = (latRaw, longRaw, gridSz = actualGridSize) => {
+    const lat = parseNumber(latRaw);
+    const lon = parseNumber(longRaw);
+    if (Number.isNaN(lat) || Number.isNaN(lon)) return { x: -1, y: -1 };
+
+    const latNorm = normalize(lat, latMin, latMax);
+    const longNorm = normalize(lon, longMin, longMax);
+
+    const x = Math.round(longNorm * (gridSz - 1));
+    const y = Math.round((1 - latNorm) * (gridSz - 1));
+    return { x, y };
+  };
+
+  // aceita tanto {lat,long} quanto {coordX,coordY}
+  const normalizeInputLatLong = (raw) => {
+    if (!raw) return null;
+    if (raw.lat !== undefined && raw.long !== undefined) return { lat: raw.lat, long: raw.long };
+    if (raw.coordX !== undefined && raw.coordY !== undefined) return { lat: raw.coordX, long: raw.coordY };
+    // caso venha em outra forma (ex: {x,y}) — retorna null
+    return null;
+  };
+
+  // Obstáculo fixo (mantive)
   const obstacleLatLong = useMemo(() => ({ lat: -19.850856, long: -43.950067 }), []);
   const obstacleCell = useMemo(() => toGrid(obstacleLatLong.lat, obstacleLatLong.long), [obstacleLatLong, actualGridSize]);
 
@@ -47,46 +70,71 @@ const GridMap = ({
     return exists ? obstacles : [...obstacles, obstacleCell];
   }, [obstacles, obstacleCell]);
 
-  const currentDronePosition = droneLatLong?.lat && droneLatLong?.long
-    ? toGrid(droneLatLong.lat, droneLatLong.long)
-    : { x: -1, y: -1 };
+  // computed positions (resilientes)
+  const currentDronePositionComputed = useMemo(() => {
+    const normalized = normalizeInputLatLong(droneLatLong);
+    if (!normalized) return { x: -1, y: -1 };
+    return toGrid(normalized.lat, normalized.long, actualGridSize);
+  }, [droneLatLong, actualGridSize]);
 
-  const destinationPositions = destinations.map(dest =>
-    dest?.lat && dest?.long ? toGrid(dest.lat, dest.long) : { x: -1, y: -1 }
-  );
+  const destinationPositions = useMemo(() => {
+    return destinations.map(dest => {
+      const normalized = normalizeInputLatLong(dest);
+      if (!normalized) return { x: -1, y: -1 };
+      return toGrid(normalized.lat, normalized.long, actualGridSize);
+    });
+  }, [destinations, actualGridSize]);
 
-  const basePosition = baseLatLong?.lat && baseLatLong?.long
-    ? toGrid(baseLatLong.lat, baseLatLong.long)
-    : null;
+  const basePosition = useMemo(() => {
+    const normalized = normalizeInputLatLong(baseLatLong);
+    if (!normalized) return null;
+    return toGrid(normalized.lat, normalized.long, actualGridSize);
+  }, [baseLatLong, actualGridSize]);
 
-  // Atualiza posição do drone sempre que droneLatLong mudar
-  useEffect(() => {
-    if (currentDronePosition.x !== -1 && currentDronePosition.y !== -1) {
-      setDronePosition(currentDronePosition);
-    }
-  }, [currentDronePosition.x, currentDronePosition.y]);
-
-  // Ajuste de tamanho do mapa
+  // ---------- map sizing ----------
   useEffect(() => {
     const updateMapSize = () => {
       const availableWidth = Math.min(window.innerWidth * 0.95, 1000);
       const availableHeight = Math.min(window.innerHeight * 0.7, 800);
-      setMapSize(Math.min(availableWidth, availableHeight));
+      const preferred = Math.min(availableWidth, availableHeight);
+      setMapSize(preferred);
     };
     updateMapSize();
     window.addEventListener('resize', updateMapSize);
     return () => window.removeEventListener('resize', updateMapSize);
   }, []);
 
-  const cellSize = mapSize / actualGridSize;
+  // escolher width/height finais (prioriza props mapWidth/mapHeight)
+  const width = mapWidth || mapSize;
+  const height = mapHeight || mapSize;
+  const containerPx = Math.min(width, height);
+  const cellSize = containerPx / actualGridSize;
 
+  // ---------- sincroniza dronePosition a partir do payload do backend ----------
+  useEffect(() => {
+    console.log('[GridMap] droneLatLong raw ->', droneLatLong);
+    console.log('[GridMap] computed cell ->', currentDronePositionComputed);
+
+    if (currentDronePositionComputed.x !== -1 && currentDronePositionComputed.y !== -1) {
+      setDronePosition(prev => {
+        if (prev.x === currentDronePositionComputed.x && prev.y === currentDronePositionComputed.y) {
+          return prev;
+        }
+        return currentDronePositionComputed;
+      });
+    } else {
+      // opcional: se quiser apagar a posição quando inválida
+      // setDronePosition({ x: -1, y: -1 });
+    }
+  }, [droneLatLong, currentDronePositionComputed.x, currentDronePositionComputed.y]);
+
+  // helpers visuais
   const isObstacle = (x, y) => mergedObstacles.some(obs => obs.x === x && obs.y === y);
   const isDestination = (x, y) => destinationPositions.some(dest => dest.x === x && dest.y === y);
-  const isDronePosition = (x, y) => dronePosition.x === x && dronePosition.y === y;
   const isBasePosition = (x, y) => basePosition && basePosition.x === x && basePosition.y === y;
 
   const getCellColor = (x, y) => {
-    if (isDronePosition(x, y)) return 'bg-blue-500';
+    if (dronePosition.x === x && dronePosition.y === y) return 'bg-blue-500';
     if (isDestination(x, y)) return 'bg-green-500';
     if (isBasePosition(x, y)) return 'bg-purple-500';
     if (isObstacle(x, y)) return 'bg-red-500';
@@ -100,6 +148,7 @@ const GridMap = ({
     if (onCellClick) onCellClick({ x, y });
   };
 
+  // monta células (ainda renderizo as células como antes)
   const renderGrid = () => {
     const cells = [];
     for (let y = 0; y < actualGridSize; y++) {
@@ -114,10 +163,10 @@ const GridMap = ({
             onMouseEnter={() => setHoveredCell({ x, y })}
             onMouseLeave={() => setHoveredCell(null)}
           >
-            {isDronePosition(x, y) && <MdFlight className="text-white" style={{ fontSize: Math.max(8, cellSize * 0.6) }} />}
-            {isDestination(x, y) && !isDronePosition(x, y) && <FaMapMarkerAlt className="text-white" style={{ fontSize: Math.max(6, cellSize * 0.5) }} />}
+            {/* não colocamos o ícone do drone dentro da célula para permitir overlay animado */}
+            {isDestination(x, y) && <FaMapMarkerAlt className="text-white" style={{ fontSize: Math.max(6, cellSize * 0.5) }} />}
             {isBasePosition(x, y) && <span className="text-white font-bold" style={{ fontSize: Math.max(6, cellSize * 0.4) }}>🏠</span>}
-            {showCoordinates && !isDronePosition(x, y) && !isDestination(x, y) && !isObstacle(x, y) && !isBasePosition(x, y) && (
+            {showCoordinates && !isDestination(x, y) && !isObstacle(x, y) && !isBasePosition(x, y) && (
               <span className="text-xs text-gray-600">{x},{y}</span>
             )}
           </div>
@@ -126,6 +175,10 @@ const GridMap = ({
     }
     return cells;
   };
+
+  // posição do overlay do drone em pixels
+  const droneLeft = dronePosition.x >= 0 ? dronePosition.x * cellSize : -9999;
+  const droneTop = dronePosition.y >= 0 ? dronePosition.y * cellSize : -9999;
 
   return (
     <div className="w-full flex flex-col items-center space-y-4">
@@ -137,16 +190,40 @@ const GridMap = ({
 
         <div className="mt-3 flex justify-center">
           <div
+            ref={gridRef}
             className="grid border-2 border-gray-600 bg-gray-100"
             style={{
+              position: 'relative',             // importante para overlay absoluto
               gridTemplateColumns: `repeat(${actualGridSize}, 1fr)`,
-              width: mapWidth || mapSize,
-              height: mapHeight || mapSize,
+              width: containerPx,
+              height: containerPx,
               maxWidth: '100%',
               overflow: 'hidden'
             }}
           >
             {renderGrid()}
+
+            {/* Overlay do drone (absoluto) — anima com transform */}
+            {dronePosition.x >= 0 && dronePosition.y >= 0 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  width: cellSize,
+                  height: cellSize,
+                  transform: `translate3d(${droneLeft}px, ${droneTop}px, 0)`,
+                  transition: 'transform 0.6s linear',
+                  pointerEvents: 'none', // deixa clicks passarem para as células
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 50
+                }}
+              >
+                <MdFlight className="text-white" style={{ fontSize: Math.max(12, cellSize * 0.6), filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }} />
+              </div>
+            )}
           </div>
         </div>
       </div>
