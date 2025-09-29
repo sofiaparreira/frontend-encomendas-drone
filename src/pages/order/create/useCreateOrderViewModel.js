@@ -94,6 +94,11 @@ const createOrder = async () => {
   try {
     setLoading(true);
 
+      if(order.enderecoDestino.cidade !== 'Belo Horizonte') {
+    toast.error("Por favor, insira um local de Belo Horizonte")
+    return;
+  }
+
     const coords = await updateCoordinates();
     if (!coords) return;
 

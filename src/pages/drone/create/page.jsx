@@ -153,16 +153,19 @@ const CreateDronePage = () => {
                 }}
                 value={endereco.estado}
               />
-              <InputContainer
-                label={'Cidade'}
-                onChange={(e) => {
-                  setEndereco((prev) => ({
-                    ...prev,
-                    cidade: e.target.value
-                  }))
-                }}
-                value={endereco.cidade}
-              />
+              <div>
+                <InputContainer
+                  label={'Cidade'}
+                  onChange={(e) => {
+                    setEndereco((prev) => ({
+                      ...prev,
+                      cidade: e.target.value
+                    }))
+                  }}
+                  value={endereco.cidade}
+                />
+                <p className="text-sm text-gray-500">Por favor insira locais somente em Belo Horizonte</p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-3">

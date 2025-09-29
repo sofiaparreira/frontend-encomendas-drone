@@ -85,6 +85,11 @@ export default function useCreateDroneViewModel() {
   if (isCreating) return;
   setIsCreating(true);
 
+
+  if(endereco.cidade !== 'Belo Horizonte') {
+    toast.error("Por favor, insira um local de Belo Horizonte")
+    return;
+  }
   try {
     setLoading(true);
 
@@ -122,6 +127,10 @@ export default function useCreateDroneViewModel() {
         const message = Object.values(err)[0];
         toast.error(message);
       });
+
+    } else if (error.response?.data?.error) {
+      toast.error(error.response.data.error);
+
     } else {
       console.error("Erro inesperado:", error);
       toast.error("Ocorreu um erro inesperado");

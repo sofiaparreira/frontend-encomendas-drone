@@ -1,10 +1,9 @@
 import React from 'react'
 import useDashboardViewModel from './useDashboardVeiwModel'
-import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { MdLocalShipping, MdPending, MdCheckCircle } from 'react-icons/md'
 import { FiClock, FiPackage } from 'react-icons/fi'
 import { HiOutlineStatusOnline, HiOutlineStatusOffline } from 'react-icons/hi'
-import { BiWrench, BiBattery } from 'react-icons/bi'
+import { BiBattery } from 'react-icons/bi'
 import { PiDroneFill } from 'react-icons/pi'
 import { TbTruckDelivery, TbTruckReturn } from 'react-icons/tb'
 
@@ -17,7 +16,6 @@ const DashboardPage = () => {
         drones
     } = useDashboardViewModel()
 
-    // Calcular status dos drones baseado nos dados reais
     const droneStats = {
         total: drones.length,
         disponivel: drones.filter(d => d.status === 'disponivel').length,
@@ -133,7 +131,6 @@ const DashboardPage = () => {
                             </div>
                         </div>
 
-                        {/* Card de Carregando - Ocupando uma linha inteira */}
                         <div className={`p-4 rounded-lg border-2 ${getStatusColor('carregando')} mb-4`}>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -149,7 +146,7 @@ const DashboardPage = () => {
                             <h4 className="text-lg font-semibold text-gray-900 mb-4">Drones Ativos</h4>
                             <div className="space-y-2 max-h-60 overflow-y-auto">
                                 {drones.map((drone) => (
-                                    <div key={drone.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                                    <div key={drone._id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
                                         <div className="flex items-center gap-3">
                                             <div className="p-2 rounded-full bg-gray-50 border border-gray-200">
                                                 {getStatusIcon(drone.status)}
@@ -169,7 +166,6 @@ const DashboardPage = () => {
                     </div>
                 </section>
 
-                {/* Seção dos Pedidos */}
                 <section className="space-y-4">
                     <div className="bg-white shadow-lg shadow-gray-200/50 p-6 rounded-xl border border-gray-100">
                         <div className="flex items-center gap-3 mb-4">

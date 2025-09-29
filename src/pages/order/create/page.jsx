@@ -111,19 +111,23 @@ const CreateOrderPage = () => {
                   }))
                 }
               />
-              <InputContainer
-                label={'Cidade'}
-                value={order.enderecoDestino?.cidade || ''}
-                onChange={(e) =>
-                  setOrder(prev => ({
-                    ...prev,
-                    enderecoDestino: {
-                      ...prev.enderecoDestino,
-                      cidade: e.target.value
-                    }
-                  }))
-                }
-              />
+              <div>
+                <InputContainer
+                  label={'Cidade'}
+                  value={order.enderecoDestino?.cidade || ''}
+                  onChange={(e) =>
+                    setOrder(prev => ({
+                      ...prev,
+                      enderecoDestino: {
+                        ...prev.enderecoDestino,
+                        cidade: e.target.value
+                      }
+                    }))
+                  }
+                />
+                                <p className="text-sm text-gray-500">Por favor insira locais somente em Belo Horizonte</p>
+
+              </div>
               <InputContainer
                 label={'Bairro'}
                 value={order.enderecoDestino?.bairro || ''}
