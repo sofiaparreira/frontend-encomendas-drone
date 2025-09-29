@@ -21,7 +21,7 @@ cd frontend-encomendas-drone
 npm install
 
 # Inicie a aplicação
-npm start
+npm run preview
 
 ---
 
