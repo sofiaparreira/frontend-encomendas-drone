@@ -62,13 +62,13 @@ const GridMap = ({
   };
 
   // Obstáculo fixo (mantive)
-  const obstacleLatLong = useMemo(() => ({ lat: -19.850856, long: -43.950067 }), []);
-  const obstacleCell = useMemo(() => toGrid(obstacleLatLong.lat, obstacleLatLong.long), [obstacleLatLong, actualGridSize]);
+  // const obstacleLatLong = useMemo(() => ({ lat: -19.850856, long: -43.950067 }), []);
+  // const obstacleCell = useMemo(() => toGrid(obstacleLatLong.lat, obstacleLatLong.long), [obstacleLatLong, actualGridSize]);
 
-  const mergedObstacles = useMemo(() => {
-    const exists = obstacles.some(obs => obs.x === obstacleCell.x && obs.y === obstacleCell.y);
-    return exists ? obstacles : [...obstacles, obstacleCell];
-  }, [obstacles, obstacleCell]);
+  // const mergedObstacles = useMemo(() => {
+  //   const exists = obstacles.some(obs => obs.x === obstacleCell.x && obs.y === obstacleCell.y);
+  //   return exists ? obstacles : [...obstacles, obstacleCell];
+  // }, [obstacles, obstacleCell]);
 
   // computed positions (resilientes)
   const currentDronePositionComputed = useMemo(() => {
@@ -129,7 +129,7 @@ const GridMap = ({
   }, [droneLatLong, currentDronePositionComputed.x, currentDronePositionComputed.y]);
 
   // helpers visuais
-  const isObstacle = (x, y) => mergedObstacles.some(obs => obs.x === x && obs.y === y);
+  // const isObstacle = (x, y) => mergedObstacles.some(obs => obs.x === x && obs.y === y);
   const isDestination = (x, y) => destinationPositions.some(dest => dest.x === x && dest.y === y);
   const isBasePosition = (x, y) => basePosition && basePosition.x === x && basePosition.y === y;
 
@@ -137,7 +137,7 @@ const GridMap = ({
     if (dronePosition.x === x && dronePosition.y === y) return 'bg-blue-500';
     if (isDestination(x, y)) return 'bg-green-500';
     if (isBasePosition(x, y)) return 'bg-purple-500';
-    if (isObstacle(x, y)) return 'bg-red-500';
+    // if (isObstacle(x, y)) return 'bg-red-500';
     if (hoveredCell && hoveredCell.x === x && hoveredCell.y === y) return 'bg-gray-300';
     if (selectedCell && selectedCell.x === x && selectedCell.y === y) return 'bg-yellow-300';
     return 'bg-white';
@@ -166,7 +166,7 @@ const GridMap = ({
             {/* não colocamos o ícone do drone dentro da célula para permitir overlay animado */}
             {isDestination(x, y) && <FaMapMarkerAlt className="text-white" style={{ fontSize: Math.max(6, cellSize * 0.5) }} />}
             {isBasePosition(x, y) && <span className="text-white font-bold" style={{ fontSize: Math.max(6, cellSize * 0.4) }}>🏠</span>}
-            {showCoordinates && !isDestination(x, y) && !isObstacle(x, y) && !isBasePosition(x, y) && (
+            {showCoordinates && !isDestination(x, y) && !isBasePosition(x, y) && (
               <span className="text-xs text-gray-600">{x},{y}</span>
             )}
           </div>

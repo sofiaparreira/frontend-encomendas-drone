@@ -130,6 +130,7 @@ export default function useDetailDroneViewModel() {
             console.log("voo iniciado", data)
 
             getDroneById()
+            toast.success("O drone iniciou o voo! Confira a movimentação no mapa em tempo real.")
 
         } catch (error) {
             console.error('Erro ao iniciar drone: ', error);

@@ -363,7 +363,7 @@ const DashboardOrdersPage = () => {
         <p className="text-gray-600">
           {activeFilter === 'entregues' 
             ? 'Lista de pedidos entregues.' 
-            : 'Pedidos organizados por drone. Clique nas seções para expandir/recolher.'
+            : 'Pedidos agrupados por drone e ordenados por prioridade e ordem de chegada. Clique nas seções para expandir/recolher.'
           }
         </p>
       </section>
