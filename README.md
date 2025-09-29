@@ -22,7 +22,7 @@ npm install
 
 # Inicie a aplicação
 npm run preview
-
+````
 ---
 
 ## 🛠 Tecnologias Utilizadas  
