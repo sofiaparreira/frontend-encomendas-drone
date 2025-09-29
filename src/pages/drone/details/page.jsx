@@ -51,7 +51,6 @@ const DroneDetailPage = () => {
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <span className="flex gap-3 items-center">
@@ -73,7 +72,6 @@ const DroneDetailPage = () => {
             </div>
         </div>
 
-        {/* Status de Alerta Bateria */}
         {isBatteryLow && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <div className="flex items-center">
@@ -121,7 +119,6 @@ const DroneDetailPage = () => {
 
         {/* Informações Principais */}
         <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-7 gap-4 mb-6">
-          {/* Bateria */}
           <div className="bg-white rounded-lg shadow-md p-4 col-span-2">
             <div className="flex items-center justify-between mb-3 ">
               <div className="flex items-center">
@@ -155,7 +152,6 @@ const DroneDetailPage = () => {
             </div>
           </div>
 
-          {/* Capacidade */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <div className="flex items-center mb-2">
               <h3 className="text-sm font-semibold text-gray-900">Capacidade</h3>
@@ -165,7 +161,6 @@ const DroneDetailPage = () => {
             </div>
           </div>
 
-          {/* Velocidade */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <div className="flex items-center mb-2">
               <h3 className="text-sm font-semibold text-gray-900">Velocidade</h3>
@@ -175,7 +170,6 @@ const DroneDetailPage = () => {
             </div>
           </div>
 
-          {/* Tempo de Voo */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <div className="flex items-center mb-2">
               <FaClock className="h-5 w-5 mr-2 text-indigo-600" />
@@ -186,7 +180,6 @@ const DroneDetailPage = () => {
             </div>
           </div>
 
-          {/* Alcance */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <div className="flex items-center mb-2">
               <h3 className="text-sm font-semibold text-gray-900">Alcance</h3>

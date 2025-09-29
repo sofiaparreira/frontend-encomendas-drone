@@ -36,44 +36,6 @@ export default function useDetailDroneViewModel() {
         prioridade: 0
     });
 
-    // const [fila, setFila] = useState(
-    //     {
-       
-    //       droneId: "",
-    //       entregas: [
-    //         {
-    //           drone: "",
-    //           pedidos: [
-    //             {
-    //               enderecoDestino: {
-    //                 rua: "",
-    //                 numero: "",
-    //                 bairro: "",
-    //                 cidade: "",
-    //                 estado: "",
-    //                 cep: "",
-    //                 coordX: 0,
-    //                 coordY: 0
-    //               },
-    //               pesoKg: "",
-    //               status: "",
-    //               prioridadeId: { _id: "", nome: "media", valor: 2 },
-    //               droneId: "",
-   
-    //             }
-                
-    //           ],
-    //           totalPeso: 0,
-    //           capacidadeRestante: 0,
-    //           droneMaxPayloadSnapshot: 0,
-    //           status: "agendada",
-          
-    //         }
-    //       ],
-    //       status: "aguardando",
-        
-    //     }
-    //   );
     const [fila, setFila] = useState(null);
 
     const { id } = useParams();

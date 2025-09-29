@@ -21,12 +21,10 @@ const DashboardOrdersPage = () => {
   const groupedOrders = useMemo(() => {
     if (!orders || orders.length === 0) return [];
     
-    // Para pedidos entregues, não agrupar por drone
     if (activeFilter === 'entregues') {
       return orders;
     }
     
-    // Para outros status, agrupar por drone
     const groups = orders.reduce((acc, order) => {
       const droneKey = order.droneId?._id || 'sem-drone';
       if (!acc[droneKey]) {
@@ -73,7 +71,6 @@ const DashboardOrdersPage = () => {
       'bg-yellow-500', 'bg-indigo-500', 'bg-pink-500', 'bg-teal-500'
     ];
     
-    // Usar hash simples do droneId para escolher cor consistente
     let hash = 0;
     for (let i = 0; i < droneId.length; i++) {
       hash = droneId.charCodeAt(i) + ((hash << 5) - hash);
@@ -176,7 +173,6 @@ const DashboardOrdersPage = () => {
                   </button>
                   
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    {/* Botão Acompanhar Drone - só aparece se tiver droneId */}
                     {droneId?._id && (
                       <button
                         onClick={() => navigate(`/drone/${droneId._id}`)}
@@ -200,10 +196,8 @@ const DashboardOrdersPage = () => {
                   </div>
                 </div>
                 
-                {/* Lista de pedidos (colapsável) */}
                 {isExpanded && (
                   <div className="border-t border-gray-100 p-6">
-                    {/* Informações detalhadas do drone */}
                     {droneId && (
                       <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
@@ -245,12 +239,10 @@ const DashboardOrdersPage = () => {
                       </div>
                     )}
                     
-                    {/* Lista de pedidos */}
                     <div className="space-y-3">
                       {orders.length > 0 ? (
                         orders.map((order, index) => (
                           <div key={order._id} className="relative">
-                            {/* Indicador de posição na fila */}
                             <div className="absolute -left-2 top-4 w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium text-gray-600 z-10">
                               {index + 1}
                             </div>
@@ -334,7 +326,6 @@ const DashboardOrdersPage = () => {
         </div>
       </section>
 
-      {/* Indicador visual do filtro ativo */}
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div className={`
@@ -347,7 +338,6 @@ const DashboardOrdersPage = () => {
             Exibindo: {activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}
           </div>
           
-          {/* Botão "Expandir/Recolher Todos" só aparece para status que têm agrupamento */}
           {activeFilter !== 'entregues' && groupedOrders.length > 0 && (
             <button
               onClick={toggleAllDrones}
@@ -368,10 +358,8 @@ const DashboardOrdersPage = () => {
         </p>
       </section>
 
-      {/* Renderização condicional baseada no filtro */}
       {activeFilter === 'entregues' ? renderDeliveredOrders() : renderGroupedOrders()}
 
-      {/* Modal FORA do map */}
       {isOpenDeleteModal && (
         <DeleteModal 
           onConfirm={() => deleteOrder(selectedOrderId)} 
