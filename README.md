@@ -6,6 +6,25 @@ Ele simula **entregas urbanas realizadas por drones**, organizando pedidos, prio
 
 ---
 
+## 🚀 Como Instalar e Rodar  
+Antes de iniciar o front-end, é recomendado ter a API em funcionamento. Se você ainda não clonou ela acesse o link: https://github.com/sofiaparreira/api-encomendas-drone.git
+Siga os passos abaixo para rodar o projeto localmente:
+
+```bash
+# Clone o repositório
+git clone https://github.com/sofiaparreira/frontend-encomendas-drone.git
+
+# Entre na pasta do projeto
+cd frontend-encomendas-drone
+
+# Instale as dependências
+npm install
+
+# Inicie a aplicação
+npm start
+
+---
+
 ## 🛠 Tecnologias Utilizadas  
 - **JavaScript** – linguagem principal do projeto  
 - **React.js** – para construção da interface  
