@@ -6,7 +6,7 @@ import { FaClock } from 'react-icons/fa';
 import { FaLocationDot } from 'react-icons/fa6';
 import GridMap from '../../../components/GridMap'
 import Loading from '../../../components/Loading'
-
+import DroneMap from '../../../components/DroneMap';
 const DroneDetailPage = () => {
   const { drone, startFlight, order, loading, rechargeBaterry, fila } = useDetailDroneViewModel();
   const [isStartingFlight, setIsStartingFlight] = useState(false);
@@ -41,9 +41,8 @@ const DroneDetailPage = () => {
 
   const isBatteryLow = drone.porcentagemBateria <= 30;
 
-  // Debug: Log dos dados da fila
-  console.log("🔍 Debug - Fila:", fila);
-  console.log("🔍 Debug - Destinos:", fila?.entregas?.[0]?.pedidos?.map(pedido => ({
+  console.log("Debug - Fila:", fila);
+  console.log("Debug - Destinos:", fila?.entregas?.[0]?.pedidos?.map(pedido => ({
     lat: pedido.enderecoDestino.coordX,
     long: pedido.enderecoDestino.coordY
   })) || []);
@@ -251,6 +250,18 @@ const DroneDetailPage = () => {
               mapHeight={600}
             />
           </div>
+
+       <DroneMap 
+  destinations={fila?.entregas?.[0]?.pedidos?.map(pedido => ({
+    lat: pedido.enderecoDestino.coordX,
+    lng: pedido.enderecoDestino.coordY // mudou de long para lng
+  })) || []}
+
+  destinationsAddress={fila?.entregas?.[0]?.pedidos?.map(pedido => ({
+    address: `${pedido.enderecoDestino.rua}, ${pedido.enderecoDestino.numero} - ${pedido.enderecoDestino.bairro}`
+  })) || []}
+/>
+
         </div>
       </div>
 
