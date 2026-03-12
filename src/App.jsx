@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate, Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import CreateDronePage from './pages/drone/create/page';
 import DashboardDronePage from './pages/drone/page';
@@ -12,6 +12,7 @@ import DroneDetailPage from './pages/drone/details/page';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import DashboardPage from './pages/dashboard/page';
+import LoginPage from './pages/auth/login/page';
 
 
 
@@ -68,15 +69,26 @@ const AppContent = () => {
     }
   };
 
-  return (
+  const AppLayout = () => (
     <div className="flex h-screen bg-gray-100">
       <Sidebar 
         activeRoute={activeRoute} 
         onRouteChange={handleRouteChange} 
       />
-      
+
       <div className="flex-1 overflow-auto">
-        <Routes>
+        <Outlet />
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth/login" element={<LoginPage />} />
+
+        <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
 
           <Route path="/drone" element={<DashboardDronePage />} />
@@ -87,10 +99,10 @@ const AppContent = () => {
           <Route path="/order" element={<DashboardOrdersPage />} />
 
           <Route path="/settings" element={<SettingsPage />} />
+        </Route>
 
-          <Route path="/" element={<div className="p-8"><h1 className="text-2xl font-bold">Dashboard Principal</h1></div>} />
-        </Routes>
-      </div>
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
 
       <ToastContainer 
         position="top-right" 
@@ -103,7 +115,7 @@ const AppContent = () => {
         draggable
         pauseOnHover
       />
-    </div>
+    </>
   );
 };
 

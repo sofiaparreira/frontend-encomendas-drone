@@ -41,12 +41,6 @@ const DroneDetailPage = () => {
 
   const isBatteryLow = drone.porcentagemBateria <= 30;
 
-  console.log("Debug - Fila:", fila);
-  console.log("Debug - Destinos:", fila?.entregas?.[0]?.pedidos?.map(pedido => ({
-    lat: pedido.enderecoDestino.coordX,
-    long: pedido.enderecoDestino.coordY
-  })) || []);
-
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -254,12 +248,15 @@ const DroneDetailPage = () => {
        <DroneMap 
   destinations={fila?.entregas?.[0]?.pedidos?.map(pedido => ({
     lat: pedido.enderecoDestino.coordX,
-    lng: pedido.enderecoDestino.coordY // mudou de long para lng
+    lng: pedido.enderecoDestino.coordY
   })) || []}
 
   destinationsAddress={fila?.entregas?.[0]?.pedidos?.map(pedido => ({
     address: `${pedido.enderecoDestino.rua}, ${pedido.enderecoDestino.numero} - ${pedido.enderecoDestino.bairro}`
   })) || []}
+
+  droneLocation={{ lat: drone.coordX, lng: drone.coordY}}
+  base={{ lat: drone.homeCoordX, lng: drone.homeCoordY }}
 />
 
         </div>
